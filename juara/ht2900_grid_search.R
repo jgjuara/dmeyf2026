@@ -88,7 +88,7 @@ ArbolesMontecarlo <- function(semillas, param_basicos) {
 
 experimento <- "HT2900"
 dir.create(file.path(EXP_DIR, experimento), recursive = TRUE, showWarnings = FALSE)
-setwd(file.path(EXP_DIR, experimento))
+# setwd(file.path(EXP_DIR, experimento))
 
 dataset <- fread(file.path(DATA_DIR, "competencia_01.csv.gz"))
 dataset <- dataset[foto_mes == 202106]
@@ -102,59 +102,132 @@ primos <- generate_primes(min = 100000, max = 1000000)
 set.seed(PARAM$semilla_primigenia)
 PARAM$semillas <- sample(primos, PARAM$qsemillas)
 
-if (file.exists("gridsearch_detalle.txt")) {
-  tb_grid_search_detalle <- fread("gridsearch_detalle.txt")
+DETALLE_FILE <- "gridsearch_detalle.txt"
+es_primera_escritura <- !file.exists(DETALLE_FILE)
+
+if (file.exists(DETALLE_FILE)) {
+  tb_previo <- fread(DETALLE_FILE)
+  tuplas_hechas <- unique(tb_previo[, .(cp, maxdepth, minsplit, minbucket)])
 } else {
-  tb_grid_search_detalle <- data.table(
-    semilla = integer(),
+  tb_previo <- NULL
+  tuplas_hechas <- data.table(
     cp = numeric(),
     maxdepth = integer(),
     minsplit = integer(),
-    minbucket = integer(),
-    ganancia_test = numeric()
+    minbucket = integer()
   )
 }
 
-print(nrow(tb_grid_search_detalle))
+print(if (is.null(tb_previo)) 0L else nrow(tb_previo))
+
+# cuales son los rangos de minbucket teoricamente max y min?
+# el minimo es 0
+# el maximo esta dado por  N / (1 +Dmin) donde Dmin es la minimo profundidad a probar
+
+# entonces puedo armar el rango de minbucket entre ambas cotas
+# y luego puedo calcular minsplit en funcion de r
+# r_max(mb) = N/mb-(D-1) => minsplit_max = r_max * minbucket
+N <- nrow(dataset)
+depths <- 14:30
+vminbucket <- N / (1 + depths)
+
+r_options <- rbindlist(lapply(depths, function(d) {
+  mb_validos <- vminbucket[vminbucket <= N / (1 + d)]
+  data.table(
+    d = d,
+    minbucket = mb_validos,
+    r_max = N / mb_validos - (d - 1)
+  )
+}))
+
+r_options[, minsplit_max := r_max * minbucket]
+data.table::fwrite(r_options, "exp/HT2900/r_options.csv")
+
+
+minsplit <- seq( 0, max(r_options$minsplit_max), (max(r_options$minsplit_max)/20))
+minbucket <- seq( 0, max(r_options$minbucket), (max(r_options$minbucket)/20))
+  
 
 iter <- 0
+tiempo_loop_inicio <- proc.time()
 
-for (vmax_depth in c(4, 6, 8, 10, 12, 14)) {
-  for (vmin_split in c(1000, 800, 600, 400, 200, 100, 50, 20, 10)) {
-    iter <- iter + 1
-    cat(iter, " ")
-    flush.console()
-    if (iter * PARAM$qsemillas < nrow(tb_grid_search_detalle) + 1) next
+for (vmax_depth in seq(from = 14, to = 30, by = 2)) {
+  max_mb_depth <- N / (1 + vmax_depth)
+  mb_validos <- minbucket[minbucket <= max_mb_depth]
 
-    param_basicos <- list(
-      "cp" = -0.5,
-      "maxdepth" = vmax_depth,
-      "minsplit" = vmin_split,
-      "minbucket" = 5
-    )
+  for (vminbucket in mb_validos) {
+    if (vminbucket > 0) {
+      minsplit_max_admitido <- N - vminbucket * (vmax_depth - 1)
+      split_validos <- minsplit[minsplit <= minsplit_max_admitido]
+    } else {
+      split_validos <- minsplit
+    }
 
-    ganancias <- ArbolesMontecarlo(PARAM$semillas, param_basicos)
+    for (vmin_split in split_validos) {
+      for (c in c(-1, -0.5, 0, 0.5, 1)) {
+        iter <- iter + 1
+        header <- sprintf(
+          "[iter %4d] depth=%2d  minbucket=%8.0f  minsplit=%10.0f  cp=%+5.1f",
+          iter, vmax_depth, vminbucket, vmin_split, c
+        )
 
-    tb_grid_search_detalle <- rbindlist(
-      list(
-        tb_grid_search_detalle,
-        rbindlist(ganancias)
-      )
-    )
+        if (nrow(tuplas_hechas[
+          cp == c & maxdepth == vmax_depth &
+            minsplit == vmin_split & minbucket == vminbucket
+        ]) > 0) {
+          cat(header, " | skip\n")
+          flush.console()
+          next
+        }
+
+        cat(header, " | run\n")
+        flush.console()
+
+        param_basicos <- list(
+          "cp" = c,
+          "maxdepth" = vmax_depth,
+          "minsplit" = vmin_split,
+          "minbucket" = vminbucket
+        )
+
+        ganancias <- ArbolesMontecarlo(PARAM$semillas, param_basicos)
+        nuevas <- rbindlist(ganancias)
+
+        fwrite(
+          nuevas,
+          file = DETALLE_FILE,
+          sep = "\t",
+          append = !es_primera_escritura,
+          col.names = es_primera_escritura
+        )
+        es_primera_escritura <- FALSE
+        tuplas_hechas <- rbindlist(list(
+          tuplas_hechas,
+          unique(nuevas[, .(cp, maxdepth, minsplit, minbucket)])
+        ))
+        cat(sprintf(
+          "           ganancia_mean=%.0f  (semillas=%d)\n",
+          mean(nuevas$ganancia_test),
+          nrow(nuevas)
+        ))
+        flush.console()
+      }
+    }
   }
-
-  fwrite(
-    tb_grid_search_detalle,
-    file = "gridsearch_detalle.txt",
-    sep = "\t"
-  )
 }
 
-fwrite(
-  tb_grid_search_detalle,
-  file = "gridsearch_detalle.txt",
-  sep = "\t"
-)
+tiempo_loop <- proc.time() - tiempo_loop_inicio
+cat(sprintf(
+  "\n[loop] tiempo total: %.1f s (%.2f min) | iteraciones=%d | user=%.1f s system=%.1f s\n",
+  tiempo_loop["elapsed"],
+  tiempo_loop["elapsed"] / 60,
+  iter,
+  tiempo_loop["user.self"],
+  tiempo_loop["sys.self"]
+))
+flush.console()
+
+tb_grid_search_detalle <- fread(DETALLE_FILE)
 
 print(nrow(tb_grid_search_detalle))
 print(tb_grid_search_detalle)

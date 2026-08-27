@@ -1,0 +1,55 @@
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --accent: #4a6cf7;
+  --accent-bg: rgba(74, 108, 247, 0.08);
+  --accent-border: rgba(74, 108, 247, 0.4);
+  --plot-bg: #fafafa;
+  --plot-surface: var(--bg);
+  --plot-muted: rgba(107, 99, 117, 0.75);
+  --plot-grid: #c5c9d4;
+  --plot-wire: rgba(8, 6, 13, 0.22);
+  --plot-panel-bg: rgba(255, 255, 255, 0.92);
+  --plot-panel-stroke: rgba(8, 6, 13, 0.1);
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 16px/1.5 var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #9ca3af;
+    --text-h: #f3f4f6;
+    --bg: #16171d;
+    --border: #2e303a;
+    --accent: #6b8afd;
+    --accent-bg: rgba(107, 138, 253, 0.12);
+    --accent-border: rgba(107, 138, 253, 0.45);
+    --plot-bg: #1f2028;
+    --plot-muted: rgba(156, 163, 175, 0.85);
+    --plot-grid: #3d4250;
+    --plot-wire: rgba(255, 255, 255, 0.28);
+    --plot-panel-bg: rgba(31, 32, 40, 0.92);
+    --plot-panel-stroke: rgba(255, 255, 255, 0.1);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#app {
+  min-height: 100vh;
+}

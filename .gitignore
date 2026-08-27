@@ -182,3 +182,33 @@ project/target
 .worksheet
 
 .vscode/settings.json
+
+#######################################
+# R                                   #
+#######################################
+
+.Rproj.user
+*.Rproj
+.Rhistory
+.RData
+.Ruserdata
+
+#######################################
+# Python / uv                         #
+#######################################
+
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+#######################################
+# Node / frontend                     #
+#######################################
+
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/

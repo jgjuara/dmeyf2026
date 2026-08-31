@@ -144,9 +144,15 @@ r_options[, minsplit_max := r_max * minbucket]
 data.table::fwrite(r_options, "exp/HT2900/r_options.csv")
 
 
-minsplit <- seq( 0, max(r_options$minsplit_max), (max(r_options$minsplit_max)/20))
-minbucket <- seq( 0, max(r_options$minbucket), (max(r_options$minbucket)/20))
-  
+# Escala logarítmica: crece lento al inicio y rápido al final.
+# Mínimos teóricos desde r_options (N/31 para prof. 30), no desde 0.
+exp_seq <- function(lo, hi, n = 20L) {
+  unique(round(exp(seq(log(lo), log(hi), length.out = n))))
+}
+
+minsplit <- exp_seq(10, max(r_options$minsplit_max))
+minbucket <- exp_seq(10, max(r_options$minbucket))
+
 
 iter <- 0
 tiempo_loop_inicio <- proc.time()

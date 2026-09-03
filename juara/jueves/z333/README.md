@@ -2,12 +2,12 @@
 
 Explicación del notebook `arboles/z0333_OptimizacionHiperparametros.ipynb` a partir de los experimentos en R. Quedan fuera la descarga de datos y la generación de `clase_ternaria`.
 
-**Premisa:** existe `juara/lunes/data/competencia_01.csv.gz` con `clase_ternaria` ya calculada.
+**Premisa:** existe `juara/jueves/data/competencia_01.csv.gz` con `clase_ternaria` ya calculada.
 
 Scripts locales (ambos en `00/`):
 
-- `00/curva_ganancia.R` — sección 3.04 (overfitting / curva de ganancia).
-- `00/bayesiana_rpart.R` — sección 3.08 (Bayesian Optimization).
+- `00/1_curva_ganancia.R` — sección 3.04 (overfitting / curva de ganancia).
+- `00/2_bayesiana_rpart.R` — sección 3.08 (Bayesian Optimization).
 
 Artefactos en `00/resultados/`.
 
@@ -36,7 +36,7 @@ El notebook cubre:
 - Data Drifting
 - alternativas de búsqueda: Grid Search (fuerza bruta) y Bayesian Optimization (heurística)
 
-## 3.04 Origen del overfitting — `curva_ganancia.R`
+## 3.04 Origen del overfitting — `1_curva_ganancia.R`
 
 Pregunta: qué combinación de hiperparámetros overfitea un árbol en este dataset, y cómo se ve en las curvas de ganancia.
 
@@ -123,7 +123,7 @@ Bibliografía citada en el notebook:
 
 Texto de clase, sin código. Se explica cómo, a partir del Grid Search, se deriva la Bayesian Optimization.
 
-## 3.08 Bayesian Optimization — `bayesiana_rpart.R`
+## 3.08 Bayesian Optimization — `2_bayesiana_rpart.R`
 
 ### Librerías
 
@@ -187,7 +187,7 @@ Reejecutar con `bayesian.RDATA` presente **continúa** la búsqueda; no arranca 
 ## Secuencia de ejecución
 
 ```powershell
-Rscript juara/lunes/generar_clase_ternaria.R
-Rscript juara/lunes/z333/00/curva_ganancia.R
-Rscript juara/lunes/z333/00/bayesiana_rpart.R
+Rscript juara/jueves/generar_clase_ternaria.R
+Rscript juara/jueves/z333/00/1_curva_ganancia.R
+Rscript juara/jueves/z333/00/2_bayesiana_rpart.R
 ```

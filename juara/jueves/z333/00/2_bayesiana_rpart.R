@@ -156,7 +156,7 @@ GLOBAL_iteracion <- 0
 GLOBAL_mejor <- -Inf
 
 if (file.exists(archivo_log)) {
-  tabla_log <- fread(archivo_log)
+  tabla_log <- fread(archivo_log, comment = "#")
   GLOBAL_iteracion <- nrow(tabla_log)
   GLOBAL_mejor <- tabla_log[, max(y)]
 }
@@ -197,6 +197,8 @@ surr.km <- makeLearner("regr.km",
 
 
 # inicio la optimizacion bayesiana
+tiempo_bo_inicio <- proc.time()
+
 if (!file.exists(archivo_BO)) {
   bayesiana_salida <- mbo(
     fun= obj.fun,
@@ -208,6 +210,8 @@ if (!file.exists(archivo_BO)) {
 }
 # retomo en caso que ya exista
 
+tiempo_bo <- proc.time() - tiempo_bo_inicio
+
 
 # almaceno los resultados de la Bayesian Optimization
 # y capturo los mejores hiperparametros encontrados
@@ -218,9 +222,25 @@ tb_bayesiana <- as.data.table(bayesiana_salida$opt.path)
 setorder(tb_bayesiana, -y)
 
 # grabo para eventualmente poder utilizarlos en OTRA corrida
+cat(sprintf(
+  paste0(
+    "# tiempo_bo_segundos=%.1f\n",
+    "# tiempo_bo_minutos=%.2f\n",
+    "# tiempo_bo_user=%.1f\n",
+    "# tiempo_bo_system=%.1f\n",
+    "# iteraciones=%d\n"
+  ),
+  tiempo_bo["elapsed"],
+  tiempo_bo["elapsed"] / 60,
+  tiempo_bo["user.self"],
+  tiempo_bo["sys.self"],
+  nrow(tb_bayesiana)
+), file = archivo_log)
+
 fwrite( tb_bayesiana,
   file= archivo_log,
-  sep= "\t"
+  sep= "\t",
+  append= TRUE
 )
 
 # los mejores hiperparámetros son los que quedaron en el registro 1 de la tabla

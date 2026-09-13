@@ -1,16 +1,13 @@
 # Entrena arboles rpart (dos grids) sobre 202106, estima ganancia en test
 # e imprime cada arbol (PDF + tabla).
 #
-# Asume juara/lunes/data/competencia_01.csv.gz (generar_clase_ternaria.R).
-# Escribe PDF, TXT y tb_marga_detalle.txt en resultados/.
+# Asume juara/data/competencia_01.csv.gz (generar_clase_ternaria.R).
+# Escribe PDF, TXT y tb_marga_detalle.txt en 00/resultados.
 
-script_dir <- dirname(normalizePath(sub(
-  "^--file=",
-  "",
-  commandArgs(trailingOnly = FALSE)[grep("^--file=", commandArgs(trailingOnly = FALSE))]
-)))
-DATA_DIR <- file.path(dirname(dirname(script_dir)), "data")
-RESULTADOS_DIR <- file.path(script_dir, "resultados")
+require("here")
+here::i_am("juara/jueves/z312/00/arbol_marga.R")
+DATA_DIR <- here("juara", "data")
+RESULTADOS_DIR <- here("juara", "jueves", "z312", "00", "resultados")
 dir.create(RESULTADOS_DIR, recursive = TRUE, showWarnings = FALSE)
 
 require("data.table")

@@ -1,10 +1,7 @@
-script_dir <- dirname(normalizePath(sub(
-  "^--file=",
-  "",
-  commandArgs(trailingOnly = FALSE)[grep("^--file=", commandArgs(trailingOnly = FALSE))]
-)))
-DATA_DIR <- file.path(dirname(dirname(script_dir)), "data")
-RESULTADOS_DIR <- file.path(script_dir, "resultados")
+require("here")
+here::i_am("juara/jueves/z333/00/2_bayesiana_rpart.R")
+DATA_DIR <- here("juara", "data")
+RESULTADOS_DIR <- here("juara", "jueves", "z333", "00", "resultados")
 dir.create(RESULTADOS_DIR, recursive = TRUE, showWarnings = FALSE)
 
 # cargo las librerias que necesito

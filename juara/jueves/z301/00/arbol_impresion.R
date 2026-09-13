@@ -1,16 +1,12 @@
 # Entrena un arbol rpart sobre competencia_01 e imprime el arbol en PDF.
 #
-# Asume que existe juara/lunes/data/competencia_01.csv.gz
-# (salida de generar_clase_ternaria.R).
-# Escribe arbol.pdf en el directorio resultados junto a este script.
+# Asume juara/data/competencia_01.csv.gz (generar_clase_ternaria.R).
+# Escribe arbol.pdf en 00/resultados.
 
-script_dir <- dirname(normalizePath(sub(
-  "^--file=",
-  "",
-  commandArgs(trailingOnly = FALSE)[grep("^--file=", commandArgs(trailingOnly = FALSE))]
-)))
-DATA_DIR <- file.path(dirname(dirname(script_dir)), "data")
-RESULTADOS_DIR <- file.path(script_dir, "resultados")
+require("here")
+here::i_am("juara/jueves/z301/00/arbol_impresion.R")
+DATA_DIR <- here("juara", "data")
+RESULTADOS_DIR <- here("juara", "jueves", "z301", "00", "resultados")
 dir.create(RESULTADOS_DIR, recursive = TRUE, showWarnings = FALSE)
 
 require("data.table")

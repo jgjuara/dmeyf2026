@@ -1,13 +1,9 @@
 # Grid search de hiperparametros rpart sobre competencia_01
 
-# script_dir <- dirname(normalizePath(sub(
-#   "^--file=",
-#   "",
-#   commandArgs(trailingOnly = FALSE)[grep("^--file=", commandArgs(trailingOnly = FALSE))]
-# )))
-JUARA_DIR <- getwd()
-DATA_DIR <- file.path(JUARA_DIR, "data")
-EXP_DIR <- file.path(JUARA_DIR, "exp")
+require("here")
+here::i_am("juara/jueves/z290/HT2900/ht2900_grid_search.R")
+DATA_DIR <- here("juara", "data")
+EXP_DIR <- here("juara", "exp")
 # dir.create(DATA_DIR, recursive = TRUE, showWarnings = FALSE)
 # dir.create(EXP_DIR, recursive = TRUE, showWarnings = FALSE)
 

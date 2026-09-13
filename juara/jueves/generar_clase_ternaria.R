@@ -1,12 +1,8 @@
 # Genera clase_ternaria a partir de competencia_01_crudo.csv
 
-script_dir <- dirname(normalizePath(sub(
-  "^--file=",
-  "",
-  commandArgs(trailingOnly = FALSE)[grep("^--file=", commandArgs(trailingOnly = FALSE))]
-)))
-JUARA_DIR <- script_dir
-DATA_DIR <- file.path(JUARA_DIR, "data")
+require("here")
+here::i_am("juara/jueves/generar_clase_ternaria.R")
+DATA_DIR <- here("juara", "data")
 dir.create(DATA_DIR, recursive = TRUE, showWarnings = FALSE)
 
 require("data.table")

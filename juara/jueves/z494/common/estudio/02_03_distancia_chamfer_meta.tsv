@@ -1,0 +1,7 @@
+hp	lo_fisico	hi_fisico
+num_iterations	10.0	2048.0
+learning_rate	0.0100060634554833	0.299993172117262
+feature_fraction	0.100054647252207	0.999986448424648
+num_leaves	8.0	2048.0
+min_data_in_leaf	1.0	6813.0
+min_sum_hessian_in_leaf	1.0000883689559683e-05	0.999759074885592

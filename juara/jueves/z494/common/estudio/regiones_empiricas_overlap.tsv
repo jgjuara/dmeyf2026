@@ -1,0 +1,7 @@
+hp	overlap_norm
+num_iterations	0.8481355932203389
+learning_rate	0.22086623103687875
+feature_fraction	0.74212635496565
+num_leaves	0.9936055090998525
+min_data_in_leaf	0.4842105263157895
+min_sum_hessian_in_leaf	0.9048788004879946

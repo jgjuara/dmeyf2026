@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>¿Quiénes son los clientes que se dan de baja?</title>
+  <style>
+    :root {
+      --ink: #152333;
+      --muted: #617081;
+      --paper: #f7f8f8;
+      --line: #d8dfe2;
+      --c0: #177e89;
+      --c0-soft: #e5f2f3;
+      --c1: #de6b35;
+      --c1-soft: #fcebe2;
+      --dark: #102b3d;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { background: var(--paper); }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    button { font: inherit; }
+
+    .deck {
+      min-height: 100svh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      min-height: 100svh;
+      padding: clamp(1.5rem, 4.5vw, 5rem);
+      padding-bottom: 6.5rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      animation: enter .36s ease-out;
+    }
+
+    .slide.active { display: flex; flex-direction: column; justify-content: center; }
+
+    @keyframes enter {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      color: var(--muted);
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 2.3rem;
+      height: 2px;
+      background: currentColor;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 950px;
+      margin: .9rem 0 1.2rem;
+      color: var(--dark);
+      font-size: clamp(3rem, 7.4vw, 7.6rem);
+      font-weight: 800;
+      letter-spacing: -.075em;
+      line-height: .89;
+    }
+
+    h1 em { color: var(--c1); font-style: normal; }
+
+    h2 {
+      max-width: 900px;
+      margin: .5rem 0 2rem;
+      color: var(--dark);
+      font-size: clamp(2.25rem, 4.8vw, 5rem);
+      font-weight: 800;
+      letter-spacing: -.06em;
+      line-height: .96;
+    }
+
+    h3 {
+      margin-bottom: .45rem;
+      font-size: 1rem;
+      letter-spacing: -.02em;
+    }
+
+    .lead {
+      max-width: 730px;
+      color: var(--muted);
+      font-size: clamp(1.08rem, 1.7vw, 1.42rem);
+    }
+
+    .takeaway {
+      max-width: 1050px;
+      margin-top: 1.6rem;
+      color: var(--dark);
+      font-size: clamp(1.25rem, 2.25vw, 2rem);
+      font-weight: 650;
+      letter-spacing: -.035em;
+      line-height: 1.16;
+    }
+
+    .title-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem 1.4rem;
+      margin-top: 2.2rem;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .title-meta strong { color: var(--ink); }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(1rem, 2vw, 2rem);
+    }
+
+    .profile {
+      padding: clamp(1.25rem, 2.4vw, 2.4rem);
+      border: 1px solid var(--line);
+      background: var(--white);
+    }
+
+    .profile.c0 { border-top: 7px solid var(--c0); }
+    .profile.c1 { border-top: 7px solid var(--c1); }
+
+    .profile-label {
+      margin-bottom: .55rem;
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .c0 .profile-label { color: var(--c0); }
+    .c1 .profile-label { color: var(--c1); }
+
+    .profile-title {
+      margin: 0 0 1rem;
+      color: var(--dark);
+      font-size: clamp(1.7rem, 3vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -.055em;
+      line-height: .98;
+    }
+
+    .profile-copy {
+      min-height: 4.7em;
+      margin-bottom: 1.45rem;
+      color: var(--muted);
+      font-size: 1.04rem;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .8rem;
+    }
+
+    .metric {
+      min-height: 106px;
+      padding: 1rem;
+      background: var(--paper);
+    }
+
+    .metric .number {
+      display: block;
+      color: var(--dark);
+      font-size: clamp(1.4rem, 2.5vw, 2.35rem);
+      font-weight: 800;
+      letter-spacing: -.07em;
+      line-height: 1;
+    }
+
+    .metric .label {
+      display: block;
+      margin-top: .55rem;
+      color: var(--muted);
+      font-size: .79rem;
+      line-height: 1.2;
+    }
+
+    .distribution {
+      display: grid;
+      grid-template-columns: .56fr 1.44fr;
+      gap: clamp(2rem, 7vw, 8rem);
+      align-items: end;
+      margin: 1rem 0 2rem;
+    }
+
+    .big-number {
+      color: var(--dark);
+      font-size: clamp(5.5rem, 15vw, 13rem);
+      font-weight: 800;
+      letter-spacing: -.1em;
+      line-height: .7;
+    }
+
+    .big-caption {
+      max-width: 17rem;
+      margin-top: 1.2rem;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .share-bar {
+      display: flex;
+      height: clamp(6rem, 15vw, 10rem);
+      overflow: hidden;
+      background: var(--line);
+    }
+
+    .share-c1, .share-c0 {
+      display: flex;
+      flex-direction: column;
+      justify-content: end;
+      padding: clamp(1rem, 2vw, 1.8rem);
+      color: var(--white);
+    }
+
+    .share-c1 { width: 64%; background: var(--c1); }
+    .share-c0 { width: 36%; background: var(--c0); }
+
+    .share-bar strong {
+      font-size: clamp(1.6rem, 4vw, 3.5rem);
+      letter-spacing: -.06em;
+      line-height: .9;
+    }
+
+    .share-bar span { margin-top: .38rem; font-size: .76rem; font-weight: 700; }
+
+    .evidence-note {
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .evidence-note strong { color: var(--ink); }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: minmax(150px, .85fr) minmax(200px, 1.35fr) minmax(200px, 1.35fr);
+      gap: 0 1.2rem;
+      align-items: center;
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+
+    .comparison > * {
+      min-width: 0;
+      padding: 1.1rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .comparison .head {
+      padding-top: 0;
+      color: var(--muted);
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .measure {
+      font-weight: 750;
+      letter-spacing: -.025em;
+    }
+
+    .bar-row { display: grid; gap: .48rem; }
+    .bar-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+    .bar-top strong { color: var(--dark); font-size: 1.15rem; letter-spacing: -.04em; }
+    .bar-top span { color: var(--muted); font-size: .78rem; text-align: right; }
+    .track { height: 10px; background: var(--line); }
+    .fill { height: 100%; }
+    .fill.c0 { background: var(--c0); }
+    .fill.c1 { background: var(--c1); }
+
+    .profile-portrait {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+      gap: clamp(2rem, 8vw, 8rem);
+      align-items: center;
+    }
+
+    .statement {
+      margin: 1.2rem 0 1.5rem;
+      color: var(--dark);
+      font-size: clamp(1.4rem, 2.65vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -.045em;
+      line-height: 1.08;
+    }
+
+    .facts {
+      display: grid;
+      gap: .75rem;
+    }
+
+    .fact {
+      display: grid;
+      grid-template-columns: 2.8rem 1fr;
+      gap: 1rem;
+      align-items: start;
+      padding: .95rem 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .fact-number {
+      color: var(--c0);
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: -.06em;
+      line-height: 1;
+    }
+
+    .c1-slide .fact-number { color: var(--c1); }
+    .fact p { margin: 0; color: var(--muted); font-size: .94rem; }
+    .fact strong { color: var(--ink); }
+
+    .persona {
+      padding: clamp(1.4rem, 3.4vw, 3rem);
+      background: var(--c0-soft);
+    }
+
+    .c1-slide .persona { background: var(--c1-soft); }
+
+    .persona .quote-mark {
+      display: block;
+      color: var(--c0);
+      font-size: 6rem;
+      font-weight: 800;
+      line-height: .55;
+    }
+
+    .c1-slide .quote-mark { color: var(--c1); }
+
+    .persona p {
+      margin: 1.2rem 0 1.5rem;
+      color: var(--dark);
+      font-size: clamp(1.2rem, 2.2vw, 1.85rem);
+      font-weight: 700;
+      letter-spacing: -.035em;
+      line-height: 1.16;
+    }
+
+    .persona small { color: var(--muted); font-size: .82rem; }
+
+    .axis-card {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: clamp(1.5rem, 3.5vw, 3rem);
+      border: 1px solid var(--line);
+      background: var(--white);
+    }
+
+    .axis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      min-height: 330px;
+      margin-top: 1.4rem;
+      background:
+        linear-gradient(to right, transparent 49.85%, var(--line) 50%, transparent 50.15%),
+        linear-gradient(to bottom, transparent 49.85%, var(--line) 50%, transparent 50.15%);
+    }
+
+    .axis-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .axis-cell span {
+      max-width: 13rem;
+      padding: .7rem 1rem;
+      color: var(--white);
+      font-size: .9rem;
+      font-weight: 750;
+      line-height: 1.15;
+    }
+
+    .axis-cell.c0 span { background: var(--c0); }
+    .axis-cell.c1 span { background: var(--c1); }
+
+    .axis-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: .8rem;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 700;
+    }
+
+    .method {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: clamp(1.6rem, 6vw, 6rem);
+      align-items: start;
+    }
+
+    .method-card {
+      padding: 1.25rem 0;
+      border-top: 2px solid var(--dark);
+    }
+
+    .method-card h3 { color: var(--dark); font-size: 1.25rem; }
+    .method-card p, .method-card li { color: var(--muted); font-size: .96rem; }
+    .method-card ul { margin: 0; padding-left: 1.25rem; }
+    .method-card li + li { margin-top: .55rem; }
+
+    .footer {
+      position: fixed;
+      right: clamp(1rem, 3vw, 3rem);
+      bottom: clamp(1rem, 2.4vw, 2rem);
+      left: clamp(1rem, 3vw, 3rem);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .progress {
+      display: flex;
+      gap: .38rem;
+    }
+
+    .dot {
+      width: .55rem;
+      height: .55rem;
+      border: 1px solid var(--muted);
+      border-radius: 50%;
+      background: transparent;
+      transition: background .2s, transform .2s;
+    }
+
+    .dot.active { background: var(--dark); transform: scale(1.15); }
+
+    .controls {
+      display: flex;
+      gap: .5rem;
+      pointer-events: auto;
+    }
+
+    .control {
+      width: 2.55rem;
+      height: 2.55rem;
+      border: 1px solid var(--line);
+      color: var(--dark);
+      background: var(--white);
+      cursor: pointer;
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+
+    .control:hover:not(:disabled) { border-color: var(--dark); }
+    .control:disabled { opacity: .35; cursor: default; }
+
+    @media (max-width: 700px) {
+      .slide { justify-content: flex-start; padding-top: 3rem; }
+      .split, .profile-portrait, .method { grid-template-columns: 1fr; }
+      .distribution { grid-template-columns: 1fr; gap: 2rem; }
+      .comparison { grid-template-columns: 1fr; gap: 0; }
+      .comparison .head { display: none; }
+      .comparison .measure { padding-bottom: 0; border-bottom: 0; color: var(--dark); }
+      .comparison > * { padding: .7rem 0; }
+      .profile-copy { min-height: auto; }
+      .axis-grid { min-height: 280px; }
+      .footer { right: 1rem; left: 1rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide { animation: none; }
+    }
+
+    @media print {
+      .slide { display: flex !important; min-height: 100vh; page-break-after: always; }
+      .footer { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" aria-label="Presentación de perfiles de clientes que se dan de baja">
+    <section class="slide active" data-slide aria-labelledby="title">
+      <div class="eyebrow">Perfiles de clientes que se dan de baja</div>
+      <h1 id="title">Dos tipos de clientes: Anakin vs las naranjas</h1>
+      <p class="lead">Dos perfiles descriptivos de 5.098 episodios de BAJA. La lectura central: no todos los clientes que se van tienen la misma relación operativa con el banco.</p>
+      <div class="title-meta">
+        <span><strong>Fuente:</strong> informe_perfiles_clientes.md</span>
+        <span><strong>Unidad:</strong> episodios de BAJA</span>
+        <span><strong>Referencia:</strong> CONTINUA emparejada</span>
+      </div>
+    </section>
+
+    <section class="slide" data-slide aria-labelledby="distribution-title">
+      <div class="eyebrow">La población analizada</div>
+      <h2 id="distribution-title">La mayoría de las bajas pertenece al perfil Naranjas.</h2>
+      <div class="distribution">
+        <div>
+          <div class="big-number">5.098</div>
+          <p class="big-caption">episodios BAJA clasificados en dos clústeres aceptados.</p>
+        </div>
+        <div>
+          <div class="share-bar" aria-label="Distribución de episodios: 64% Naranjas y 36% Anakin">
+            <div class="share-c1"><strong>64%</strong><span>Naranjas · 3.262 episodios</span></div>
+            <div class="share-c0"><strong>36%</strong><span>Anakin · 1.836 episodios</span></div>
+          </div>
+          <p class="takeaway">Naranjas representa casi dos de cada tres episodios de baja.</p>
+        </div>
+      </div>
+      <p class="evidence-note"><strong>Alcance:</strong> los clústeres se obtuvieron sobre patrones de variables validadas. Describen asociaciones observadas; no identifican la causa de la baja.</p>
+    </section>
+
+    <section class="slide" data-slide aria-labelledby="summary-title">
+      <div class="eyebrow">Respuesta corta</div>
+      <h2 id="summary-title">Dos perfiles. Una diferencia clave: el nivel de vínculo operativo.</h2>
+      <div class="split">
+        <article class="profile c1">
+          <div class="profile-label">Naranjas · 64%</div>
+          <h3 class="profile-title">Naranjas</h3>
+          <p class="profile-copy">Tienen una relación más corta y muestran un uso cotidiano muy reducido. Al ancla, el saldo medio de sus cuentas es negativo.</p>
+          <div class="metrics">
+            <div class="metric"><span class="number">11,5</span><span class="label">transacciones trimestrales</span></div>
+            <div class="metric"><span class="number">99</span><span class="label">meses de antigüedad</span></div>
+            <div class="metric"><span class="number">−2.290</span><span class="label">saldo medio de cuentas</span></div>
+            <div class="metric"><span class="number">3.422</span><span class="label">payroll medio</span></div>
+          </div>
+        </article>
+        <article class="profile c0">
+          <div class="profile-label">Anakin · 36%</div>
+          <h3 class="profile-title">Anakin</h3>
+          <p class="profile-copy">Conservan uso transaccional y más antigüedad que Naranjas, pero sus saldos, payroll y productos de crédito están por debajo de CONTINUA.</p>
+          <div class="metrics">
+            <div class="metric"><span class="number">85,2</span><span class="label">transacciones trimestrales</span></div>
+            <div class="metric"><span class="number">130</span><span class="label">meses de antigüedad</span></div>
+            <div class="metric"><span class="number">78.157</span><span class="label">saldo medio de cuentas</span></div>
+            <div class="metric"><span class="number">15.163</span><span class="label">payroll medio</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="slide c1-slide" data-slide aria-labelledby="c1-title">
+      <div class="eyebrow">Naranjas · 3.262 episodios</div>
+      <div class="profile-portrait">
+        <div>
+          <h2 id="c1-title">Naranjas: clientes que ya casi no usan al banco.</h2>
+          <p class="statement">Son clientes de alrededor de 48 años, con 8,3 años de antigüedad promedio, cuya actividad cotidiana es residual antes de la baja.</p>
+          <div class="facts">
+            <div class="fact"><div class="fact-number">−90%</div><p><strong>Actividad transaccional frente a CONTINUA.</strong> 11,5 transacciones trimestrales, frente a 120,6 en la referencia emparejada.</p></div>
+            <div class="fact"><div class="fact-number">−96%</div><p><strong>Payroll frente a CONTINUA.</strong> 3.422 frente a 83.135; la mediana es 0 en Naranjas.</p></div>
+            <div class="fact"><div class="fact-number">−231k</div><p><strong>Brecha de saldo de cuentas.</strong> El saldo medio es −2.290, frente a 228.729 en CONTINUA.</p></div>
+          </div>
+        </div>
+        <aside class="persona">
+          <span class="quote-mark">“</span>
+          <p>No es un perfil de cierre súbito de una relación intensa: es un cliente con muy poca actividad y bajo anclaje financiero observable.</p>
+          <small>Lectura descriptiva basada en promedios al ancla; no constituye una explicación causal de la baja.</small>
+        </aside>
+      </div>
+    </section>
+
+    <section class="slide" data-slide aria-labelledby="c1-compare-title">
+      <div class="eyebrow">Naranjas frente a CONTINUA</div>
+      <h2 id="c1-compare-title">La desconexión aparece en cada señal de uso.</h2>
+      <div class="comparison" aria-label="Comparación de Naranjas contra CONTINUA emparejada">
+        <div class="head">Métrica</div><div class="head">Naranjas BAJA</div><div class="head">CONTINUA emparejada</div>
+        <div class="measure">Transacciones trimestrales</div>
+        <div class="bar-row"><div class="bar-top"><strong>11,5</strong><span>9,5% de CONTINUA</span></div><div class="track"><div class="fill c1" style="width:9.5%"></div></div></div>
+        <div class="bar-row"><div class="bar-top"><strong>120,6</strong><span>referencia: 100%</span></div><div class="track"><div class="fill" style="width:100%;background:var(--ink)"></div></div></div>
+        <div class="measure">Transacciones Visa</div>
+        <div class="bar-row"><div class="bar-top"><strong>1,25</strong><span>9,7% de CONTINUA</span></div><div class="track"><div class="fill c1" style="width:9.7%"></div></div></div>
+        <div class="bar-row"><div class="bar-top"><strong>12,9</strong><span>referencia: 100%</span></div><div class="track"><div class="fill" style="width:100%;background:var(--ink)"></div></div></div>
+        <div class="measure">Antigüedad</div>
+        <div class="bar-row"><div class="bar-top"><strong>99 meses</strong><span>73,5% de CONTINUA</span></div><div class="track"><div class="fill c1" style="width:73.5%"></div></div></div>
+        <div class="bar-row"><div class="bar-top"><strong>134,9 meses</strong><span>referencia: 100%</span></div><div class="track"><div class="fill" style="width:100%;background:var(--ink)"></div></div></div>
+      </div>
+      <p class="evidence-note">Las barras expresan cada nivel de Naranjas como proporción de su referencia CONTINUA emparejada; cada métrica conserva su propia unidad.</p>
+    </section>
+
+    <section class="slide" data-slide aria-labelledby="c0-title">
+      <div class="eyebrow">Anakin · 1.836 episodios</div>
+      <div class="profile-portrait">
+        <div>
+          <h2 id="c0-title">Anakin: clientes que siguen usando al banco, pero menos.</h2>
+          <p class="statement">Son clientes de alrededor de 48 años, con 10,9 años de antigüedad promedio. Mantienen uso cotidiano, aunque con señales de menor profundidad financiera que CONTINUA.</p>
+          <div class="facts">
+            <div class="fact"><div class="fact-number">−29%</div><p><strong>Actividad transaccional frente a CONTINUA.</strong> 85,2 transacciones trimestrales, frente a 120,5 en la referencia emparejada.</p></div>
+            <div class="fact"><div class="fact-number">−66%</div><p><strong>Saldo de cuentas frente a CONTINUA.</strong> 78.157 frente a 229.415; la mediana es 6.181 en Anakin.</p></div>
+            <div class="fact"><div class="fact-number">−82%</div><p><strong>Payroll frente a CONTINUA.</strong> 15.163 frente a 83.370; la mediana es 0 en Anakin.</p></div>
+          </div>
+        </div>
+        <aside class="persona">
+          <span class="quote-mark">“</span>
+          <p>No es un cliente inactivo: todavía transacciona. Su diferencia está en una vinculación financiera observable más baja que la de los clientes que continúan.</p>
+          <small>La menor liquidez y el menor crédito operativo no permiten inferir patrimonio neto, deuda total ni capacidad de pago.</small>
+        </aside>
+      </div>
+    </section>
+
+    <section class="slide" data-slide aria-labelledby="c0-compare-title">
+      <div class="eyebrow">Anakin frente a CONTINUA</div>
+      <h2 id="c0-compare-title">Anakin conserva actividad; pierde profundidad financiera.</h2>
+      <div class="comparison" aria-label="Comparación de Anakin contra CONTINUA emparejada">
+        <div class="head">Métrica</div><div class="head">Anakin BAJA</div><div class="head">CONTINUA emparejada</div>
+        <div class="measure">Transacciones trimestrales</div>
+        <div class="bar-row"><div class="bar-top"><strong>85,2</strong><span>70,7% de CONTINUA</span></div><div class="track"><div class="fill c0" style="width:70.7%"></div></div></div>
+        <div class="bar-row"><div class="bar-top"><strong>120,5</strong><span>referencia: 100%</span></div><div class="track"><div class="fill" style="width:100%;background:var(--ink)"></div></div></div>
+        <div class="measure">Saldo de cuentas</div>
+        <div class="bar-row"><div class="bar-top"><strong>78.157</strong><span>34,1% de CONTINUA</span></div><div class="track"><div class="fill c0" style="width:34.1%"></div></div></div>
+        <div class="bar-row"><div class="bar-top"><strong>229.415</strong><span>referencia: 100%</span></div><div class="track"><div class="fill" style="width:100%;background:var(--ink)"></div></div></div>
+        <div class="measure">Préstamos personales</div>
+        <div class="bar-row"><div class="bar-top"><strong>10.482</strong><span>31,3% de CONTINUA</span></div><div class="track"><div class="fill c0" style="width:31.3%"></div></div></div>
+        <div class="bar-row"><div class="bar-top"><strong>33.447</strong><span>referencia: 100%</span></div><div class="track"><div class="fill" style="width:100%;background:var(--ink)"></div></div></div>
+      </div>
+      <p class="evidence-note">Las barras expresan cada nivel de Anakin como proporción de su referencia CONTINUA emparejada; cada métrica conserva su propia unidad.</p>
+    </section>
+
+    <div class="footer" aria-label="Controles de presentación">
+      <div class="progress" aria-label="Progreso de diapositivas"></div>
+      <div class="controls">
+        <button class="control" type="button" data-prev aria-label="Diapositiva anterior">←</button>
+        <button class="control" type="button" data-next aria-label="Diapositiva siguiente">→</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const slides = [...document.querySelectorAll("[data-slide]")];
+    const progress = document.querySelector(".progress");
+    const previous = document.querySelector("[data-prev]");
+    const next = document.querySelector("[data-next]");
+    let current = 0;
+
+    slides.forEach((_, index) => {
+      const dot = document.createElement("span");
+      dot.className = "dot";
+      dot.setAttribute("aria-hidden", "true");
+      dot.dataset.dot = index;
+      progress.append(dot);
+    });
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(index, slides.length - 1));
+      slides.forEach((slide, position) => {
+        slide.classList.toggle("active", position === current);
+        slide.setAttribute("aria-hidden", String(position !== current));
+      });
+      document.querySelectorAll("[data-dot]").forEach((dot, position) => {
+        dot.classList.toggle("active", position === current);
+      });
+      previous.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+      window.location.hash = `diapositiva-${current + 1}`;
+    }
+
+    previous.addEventListener("click", () => showSlide(current - 1));
+    next.addEventListener("click", () => showSlide(current + 1));
+
+    window.addEventListener("keydown", (event) => {
+      if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+        event.preventDefault();
+        showSlide(current + 1);
+      }
+      if (["ArrowLeft", "PageUp"].includes(event.key)) {
+        event.preventDefault();
+        showSlide(current - 1);
+      }
+      if (event.key === "Home") showSlide(0);
+      if (event.key === "End") showSlide(slides.length - 1);
+    });
+
+    const initial = Number.parseInt(window.location.hash.replace("#diapositiva-", ""), 10);
+    showSlide(Number.isFinite(initial) ? initial - 1 : 0);
+  </script>
+</body>
+</html>

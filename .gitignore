@@ -173,6 +173,9 @@ Session.vim
 *.pyc
 .venv/
 
+# Secrets
+.env
+
 # Scala - sbt specific
 .cache
 .history
@@ -188,7 +191,6 @@ project/target
 
 .vscode/settings.json
 uv.lock
-
 
 #######################################
 # R                                   #
@@ -219,3 +221,5 @@ dist/
 dist-ssr/
 *.local
 .vite/
+
+monday/models/*

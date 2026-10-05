@@ -1,0 +1,11 @@
+{
+  "n": 1972,
+  "chosen_k": 2,
+  "k_min": 2,
+  "k_max": 15,
+  "min_cluster_size": 50,
+  "linkage_method": "average",
+  "proximity_dir": "/home/fdevlocal/server/projects/dmeyf2026/juara/miranda/junio/salidas/cluster/salida_cluster_rf_proximity",
+  "parquet_path": "/home/fdevlocal/server/projects/dmeyf2026/juara/miranda/junio/datos/dataset_junio.parquet",
+  "timestamp_utc": "2026-10-04T15:39:59.637789+00:00"
+}

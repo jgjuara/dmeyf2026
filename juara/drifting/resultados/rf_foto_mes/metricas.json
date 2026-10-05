@@ -1,0 +1,17 @@
+{
+  "holdout": {
+    "accuracy": 0.9999491386632623,
+    "balanced_accuracy": 0.9999490672906709,
+    "macro_f1": 0.999949133761438,
+    "test_size": 0.2,
+    "n_train": 786448,
+    "n_test": 196613
+  },
+  "baseline_full_dataset": {
+    "n_samples": 983061,
+    "n_classes": 6,
+    "majority_class_accuracy": 0.1674840116737415,
+    "uniform_random_accuracy": 0.16666666666666666
+  },
+  "chance_uniform_1_over_k": 0.16666666666666666
+}

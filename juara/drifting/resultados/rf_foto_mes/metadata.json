@@ -1,0 +1,35 @@
+{
+  "timestamp_utc": "2026-10-04T19:10:11.443182+00:00",
+  "parquet_path": "/home/fdevlocal/server/projects/dmeyf2026/juara/drifting/datos/dataset_nocont_rank.parquet",
+  "out_dir": "/home/fdevlocal/server/projects/dmeyf2026/juara/drifting/resultados/rf_foto_mes",
+  "label_column": "foto_mes",
+  "n_features": 152,
+  "feature_names_count": 152,
+  "n_rows": 983061,
+  "foto_mes_counts": {
+    "202103": 162900,
+    "202104": 163284,
+    "202105": 163768,
+    "202106": 164114,
+    "202107": 164348,
+    "202108": 164647
+  },
+  "hyperparameters": {
+    "n_estimators": 300,
+    "min_samples_leaf": 50,
+    "max_features": "sqrt",
+    "random_state": 2026
+  },
+  "split": {
+    "test_size": 0.2,
+    "stratify": "foto_mes",
+    "random_state": 2026
+  },
+  "permutation_importance": {
+    "scoring": "balanced_accuracy",
+    "n_repeats": 5,
+    "importance_max_samples": 20000,
+    "n_samples_used": 20000
+  },
+  "scikit_learn_version": "1.9.1"
+}

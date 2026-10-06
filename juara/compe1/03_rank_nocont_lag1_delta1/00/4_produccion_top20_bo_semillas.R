@@ -134,6 +134,8 @@ escribir_curva_cortes_media <- function(tb_pred, out_dir, clase_col = "clase_ter
     file.path(out_dir, "cortes_ganancia_media.tsv"),
     sep = "\t"
   )
+
+  rm(tb_plot, gra, filas_cortes)
 }
 
 producir_primos_en_dir <- function(out_dir, param_hp, semillas, dtrain_final, dataset_test) {
@@ -213,7 +215,14 @@ producir_primos_en_dir <- function(out_dir, param_hp, semillas, dtrain_final, da
     }
     sink()
 
-    rm(modelo_final)
+    rm(
+      modelo_final,
+      tb_prediccion,
+      gra,
+      prediccion,
+      param_normalizado,
+      tb_importancia
+    )
     gc(full = TRUE, verbose = FALSE)
   }
 
@@ -226,7 +235,10 @@ producir_primos_en_dir <- function(out_dir, param_hp, semillas, dtrain_final, da
     all = FALSE
   )
   escribir_curva_cortes_media(tb_media, out_dir)
-  invisible(tb_media)
+
+  rm(probs_pieces, tb_all_probs, tb_media, param_final)
+  gc(full = TRUE, verbose = FALSE)
+  invisible(NULL)
 }
 
 dataset <- compe1_read_joined(EXPERIMENT_ID, foto_mes = unlist(PARAM$foto_mes))
@@ -281,6 +293,9 @@ for (k in seq_len(N_RANKS)) {
   )
   param_rank$semillas_train <- as.list(semillas_train)
   write_yaml(param_rank, file = file.path(out_dir, "PARAM.yml"))
+
+  rm(param_rank, param_hp, fila)
+  gc(full = TRUE, verbose = FALSE)
 }
 
 cat("\nFinalizado top-20 en ", RANK_BASE, "\n", sep = "")

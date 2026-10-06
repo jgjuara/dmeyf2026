@@ -88,7 +88,7 @@ MIN_SUM_HESSIAN_HI <- 0.01
 
 PARAM$hypeparametertuning$hs <- makeParamSet(
   makeIntegerParam("num_iterations", lower = 2000L, upper = 8000L),
-  makeIntegerParam("num_leaves", lower = 10, upper = 400L),
+  makeIntegerParam("num_leaves", lower = 10, upper = 4000L),
   makeIntegerParam("min_data_in_leaf", lower = 50L, upper = 500L),
   makeNumericParam(
     "min_sum_hessian_in_leaf",

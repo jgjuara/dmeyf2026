@@ -39,7 +39,7 @@ PARAM$semilla_primigenia <- 427417
 
 set.seed(PARAM$semilla_primigenia)
 
-PARAM$foto_mes <- c(202103L, 202104L, 202105L, 202106L)
+PARAM$foto_mes <- COMPE1_FOTO_MES_MAR_JUN
 PARAM$cortes <- seq(4000, 19000, by = 500)
 
 PARAM$trainingstrategy$undersampling <- 0.1
@@ -112,7 +112,7 @@ PARAM$hyperparametertuning$objetivo <- "cv_auc"
 
 dataset <- compe1_read_joined(EXPERIMENT_ID, foto_mes = PARAM$foto_mes)
 
-dataset[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2", "BAJA+1"), 1L, 0L)]
+dataset[, clase01 := compe1_clase01(clase_ternaria)]
 
 particionar(
   dataset,
@@ -175,19 +175,19 @@ EstimarGanancia_AUC_lightgbm <- function(x) {
     sprintf(
       paste0(
         "[%s] eval #%d | AUC=%.6f | mejor=%.6f | ",
-        "num_iterations=%d lr=%.4g ff=%.4g num_leaves=%d min_data_in_leaf=%d ",
-        "min_sum_hessian=%.4g\n"
+        "num_iterations=%d num_leaves=%d min_data_in_leaf=%d min_sum_hessian=%.4g ",
+        "lr=%.4g ff=%.4g\n"
       ),
       format(Sys.time(), "%H:%M:%S"),
       BO_eval_idx,
       AUC,
       BO_mejor_auc,
-      as.integer(x$num_iterations),
-      as.numeric(x$learning_rate),
-      as.numeric(x$feature_fraction),
-      as.integer(x$num_leaves),
-      as.integer(x$min_data_in_leaf),
-      as.numeric(x$min_sum_hessian_in_leaf)
+      as.integer(param_completo$num_iterations),
+      as.integer(param_completo$num_leaves),
+      as.integer(param_completo$min_data_in_leaf),
+      as.numeric(param_completo$min_sum_hessian_in_leaf),
+      as.numeric(param_completo$learning_rate),
+      as.numeric(param_completo$feature_fraction)
     )
   )
   flush.console()

@@ -37,7 +37,7 @@ fold_test <- as.integer(PARAM$holdout$fold_test)
 
 dataset <- compe1_read_joined(EXPERIMENT_ID, foto_mes = unlist(PARAM$foto_mes))
 
-dataset[, clase01 := ifelse(clase_ternaria %in% c("BAJA+1", "BAJA+2"), 1L, 0L)]
+dataset[, clase01 := compe1_clase01(clase_ternaria)]
 
 agrupa_holdout <- PARAM$holdout$agrupa
 if (is.null(agrupa_holdout)) {

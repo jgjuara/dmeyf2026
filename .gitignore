@@ -221,3 +221,41 @@ dist-ssr/
 .vite/
 
 monday/models/*
+
+#######################################
+# Artefactos de corridas / informes   #
+# (main slim; en real ya trackeados   #
+#  siguen en el índice; nuevos: -f)   #
+#######################################
+
+*.png
+*.pdf
+*.webp
+*.jpg
+*.jpeg
+*.svg
+*.html
+*.tsv
+*.RDATA
+*.rds
+*.npz
+*.ods
+
+**/resultados/**/*.txt
+**/salidas/**/*.txt
+juara/jueves/z290/HT2900/gridsearch*.txt
+
+**/resultados/**/*.json
+**/resultados/**/metadata.json
+**/resultados/**/metricas.json
+**/salidas/**/metadata.json
+**/salidas/**/metricas.json
+
+**/ht2900viewer/.vscode/
+**/ht2900viewer/package.json
+**/ht2900viewer/package-lock.json
+**/ht2900viewer/tsconfig*.json
+**/ht2900viewer/**/*.ts
+**/ht2900viewer/**/*.svelte
+**/ht2900viewer/**/*.css
+**/ht2900viewer/**/*.js

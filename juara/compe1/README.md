@@ -6,6 +6,7 @@ Tres experimentos paralelos bajo `juara/compe1/`, alineados con la línea R + li
 
 | Carpeta | Pregunta de negocio | Capas parquet |
 |---------|---------------------|---------------|
+| [`00`](00/README.md) | Baseline sin FE derivado: solo `competencia_01.parquet` | 1 |
 | [`01_full_fe`](01_full_fe/README.md) | ¿Cuánto aporta el FE completo (lags + rankings + deltas)? | 8 |
 | [`02_rank_nocont`](02_rank_nocont/README.md) | ¿Basta nocontinuas del mes + percentiles `pct_*`? | 2 |
 | [`02_rank_nocount_py`](02_rank_nocount_py/README.md) | Mismo alcance que `02_rank_nocont`; pipeline LightGBM en Python (Optuna) | 2 |

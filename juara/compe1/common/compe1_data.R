@@ -7,6 +7,7 @@
 
 COMPE1_JOIN_KEYS <- c("numero_de_cliente", "foto_mes")
 COMPE1_PARTICION_AGRUPA <- c("clase_ternaria", "foto_mes")
+COMPE1_FOTO_MES_MAR_MAY <- c(202103L, 202104L, 202105L)
 COMPE1_FOTO_MES_MAR_JUN <- c(202103L, 202104L, 202105L, 202106L)
 COMPE1_GAN_BAJA2 <- 1072500L
 COMPE1_GAN_OTRO <- -27500L
@@ -87,6 +88,51 @@ particionar <- function(
   ))
 
   data[, (campo) := sample(rep(bloque, ceiling(.N / length(bloque))))[1:.N], by = agrupa]
+}
+
+compe1_asignar_fold_temporal_mar_may_jun <- function(
+    dt,
+    fold_train = 1L,
+    fold_test = 2L) {
+  dt[
+    ,
+    fold := data.table::fifelse(
+      foto_mes %in% COMPE1_FOTO_MES_MAR_MAY,
+      fold_train,
+      fold_test
+    )
+  ]
+  invisible(dt)
+}
+
+compe1_reproducir_holdout <- function(dataset, PARAM) {
+  holdout <- PARAM$holdout
+  fold_train <- as.integer(holdout$fold_train)
+  fold_test <- as.integer(holdout$fold_test)
+  if (!is.null(holdout$tipo) && holdout$tipo == "temporal_mar_may_jun") {
+    compe1_asignar_fold_temporal_mar_may_jun(dataset, fold_train, fold_test)
+  } else {
+    agrupa_holdout <- holdout$agrupa
+    if (is.null(agrupa_holdout)) {
+      agrupa_holdout <- COMPE1_PARTICION_AGRUPA
+    }
+    particionar(
+      dataset,
+      division = unlist(holdout$division),
+      agrupa = unlist(agrupa_holdout),
+      seed = PARAM$semilla_primigenia
+    )
+  }
+  invisible(dataset)
+}
+
+compe1_min_data_in_leaf_produccion <- function(param_final, undersampling) {
+  mdil <- as.numeric(param_final$min_data_in_leaf)
+  u <- undersampling
+  if (is.null(u) || is.na(u) || u >= 1) {
+    return(mdil)
+  }
+  round(mdil / u)
 }
 
 compe1_aplicar_undersampling_train <- function(
@@ -188,13 +234,50 @@ compe1_lgb_cv_best_auc <- function(dtrain, param_completo, nfold = 2L) {
   as.numeric(modelocv$best_score)
 }
 
-compe1_semillas_primos <- function(n, semilla_primigenia) {
-  if (!requireNamespace("primes", quietly = TRUE)) {
-    stop("paquete 'primes' requerido para compe1_semillas_primos", call. = FALSE)
+# BO temporal mar-may: fit mar→AUC abr; fit mar-abr→AUC may (media de 2).
+compe1_lgb_temporal_cv_auc_mar_may <- function(
+    dt_train,
+    campos_buenos,
+    param_completo,
+    meses = COMPE1_FOTO_MES_MAR_MAY) {
+  if (!requireNamespace("lightgbm", quietly = TRUE)) {
+    stop("paquete 'lightgbm' requerido", call. = FALSE)
   }
-  primos <- primes::generate_primes(min = 10000, max = 1000000)
-  set.seed(semilla_primigenia)
-  sample(primos, as.integer(n))
+  meses <- as.integer(meses)
+  if (length(meses) != 3L) {
+    stop("se esperan 3 meses mar-may", call. = FALSE)
+  }
+  nrounds <- as.integer(param_completo$num_iterations)
+  param_train <- param_completo
+  param_train$num_iterations <- NULL
+
+  aucs <- numeric(2L)
+  for (k in 1:2L) {
+    mes_tr <- meses[seq_len(k)]
+    mes_va <- meses[k + 1L]
+    tr <- dt_train[foto_mes %in% mes_tr]
+    va <- dt_train[foto_mes == mes_va]
+    if (nrow(tr) == 0L || nrow(va) == 0L) {
+      stop("fold temporal sin filas", call. = FALSE)
+    }
+    dtrain <- lightgbm::lgb.Dataset(
+      data = data.matrix(tr[, campos_buenos, with = FALSE]),
+      label = tr$clase01
+    )
+    dvalid <- lightgbm::lgb.Dataset(
+      data = data.matrix(va[, campos_buenos, with = FALSE]),
+      label = va$clase01
+    )
+    model <- lightgbm::lgb.train(
+      params = param_train,
+      data = dtrain,
+      nrounds = nrounds,
+      valids = list(holdout = dvalid),
+      verbose = -1L
+    )
+    aucs[k] <- compe1_auc_holdout_lgb(model)
+  }
+  mean(aucs)
 }
 
 # Exporta fold/azar/training (R L'Ecuyer) para el bridge Python.

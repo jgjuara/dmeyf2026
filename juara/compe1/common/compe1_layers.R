@@ -2,6 +2,7 @@
 # Requiere el paquete here; el script llamador debe fijar el proyecto con here::i_am(...).
 
 COMPE1_EXPERIMENT_IDS <- c(
+  "00",
   "01_full_fe",
   "02_rank_nocont",
   "02_rank_nocount_py",
@@ -10,6 +11,7 @@ COMPE1_EXPERIMENT_IDS <- c(
 )
 
 .compe1_layers_by_id <- list(
+  "00" = c("competencia_01.parquet"),
   "01_full_fe" = c(
     "competencia_01_nocontinuas.parquet",
     "competencia_01_nocontinuas_lag1.parquet",

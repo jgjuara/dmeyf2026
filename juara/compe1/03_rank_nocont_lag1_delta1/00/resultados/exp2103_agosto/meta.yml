@@ -1,0 +1,25 @@
+experiment_id: 03_rank_nocont_lag1_delta1
+experimento: 2103
+ranks_bo:
+- 3
+n_semillas_primos: 10
+semillas_train:
+- 405157
+- 152267
+- 166297
+- 141871
+- 862307
+- 542981
+- 188179
+- 817111
+- 491299
+- 531911
+foto_mes_train:
+- 202103
+- 202104
+- 202105
+- 202106
+foto_mes_pred: 202108
+n_train: 654066
+n_agosto: 164647
+n_predicciones_agregadas: 164647

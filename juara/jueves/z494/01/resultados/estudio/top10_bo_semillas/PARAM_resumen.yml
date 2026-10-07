@@ -1,0 +1,44 @@
+interpretacion: Evidencia condicional al shortlist top-10 BO; ganador por max mean(ganancia
+  publica) sobre cortes, no por AUC BO.
+rank_ganador: 9
+rank_subcampeon: 5
+envios_reporte_principal: 15000
+semillas_train:
+- 405157
+- 152267
+- 166297
+- 141871
+- 862307
+- 542981
+- 188179
+- 817111
+- 491299
+- 531911
+inferencia_primaria:
+  metodo: Wilcoxon emparejado top vs cada uno de 9 ranks
+  correccion: Holm sobre 9 contrastes por envio
+  claim_fuerte_en: envios = 15000
+inferencia_secundaria:
+  metodo: Wilcoxon emparejado top vs mediana del resto por semilla
+  comparador_max_resto: tabla wilcoxon_top_vs_resto_mediana_public.tsv fila max_resto
+n_contrastes_top_vs_resto_por_envio: 9
+n_envios: 31
+n_tests_wilcox_top_vs_resto_total: 279
+friedman_ejecutado: yes
+argmax_resumen:
+  n_resto_p_adj_holm_lt_0_05: 0
+  ranks_winrate_10_de_10:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 10
+friedman_en_argmax:
+  envios: 15000
+  statistic: 43.6721311
+  p.value: 1.6219511e-06
+  df: 9.0

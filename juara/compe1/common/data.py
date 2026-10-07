@@ -12,6 +12,7 @@ from common.partition import load_or_export_split
 
 JOIN_KEYS = ("numero_de_cliente", "foto_mes")
 PARTICION_AGRUPA = ("clase_ternaria", "foto_mes")
+FOTO_MES_MAR_MAY = (202103, 202104, 202105)
 FOTO_MES_MAR_JUN = (202103, 202104, 202105, 202106)
 GAN_BAJA2 = 1_072_500
 GAN_OTRO = -27_500
@@ -113,6 +114,62 @@ def escalar_ganancia_mes(ganancia_obs: float, n_test_mes: int, n_total_mes: int)
     if n_test_mes <= 0:
         return float("nan")
     return ganancia_obs * (n_total_mes / n_test_mes)
+
+
+def assign_fold_temporal_mar_may_jun(
+    df: pl.DataFrame,
+    fold_train: int = 1,
+    fold_test: int = 2,
+) -> pl.DataFrame:
+    return df.with_columns(
+        pl.when(pl.col("foto_mes").is_in(list(FOTO_MES_MAR_MAY)))
+        .then(fold_train)
+        .otherwise(fold_test)
+        .alias("fold")
+    )
+
+
+def preparar_holdout_temporal(
+    experiment_id: str,
+    foto_mes: tuple[int, ...] = FOTO_MES_MAR_JUN,
+    fold_train: int = 1,
+    fold_test: int = 2,
+) -> dict:
+    df = read_joined(experiment_id, foto_mes=foto_mes)
+    df = df.with_columns(clase01_expr())
+    df = assign_fold_temporal_mar_may_jun(df, fold_train, fold_test)
+    campos = feature_columns(df)
+    return {
+        "data": df,
+        "fold_train": fold_train,
+        "fold_test": fold_test,
+        "campos_buenos": campos,
+    }
+
+
+def preparar_holdout_desde_param(experiment_id: str, param: dict) -> dict:
+    holdout = param["holdout"]
+    fold_train = int(holdout["fold_train"])
+    fold_test = int(holdout["fold_test"])
+    foto_mes = tuple(int(x) for x in param["foto_mes"])
+    if holdout.get("tipo") == "temporal_mar_may_jun":
+        return preparar_holdout_temporal(
+            experiment_id,
+            foto_mes=foto_mes,
+            fold_train=fold_train,
+            fold_test=fold_test,
+        )
+    division = tuple(int(x) for x in holdout["division"])
+    ts = param.get("trainingstrategy", {})
+    return preparar_holdout_split(
+        experiment_id,
+        int(param["semilla_primigenia"]),
+        division=division,
+        fold_train=fold_train,
+        foto_mes=foto_mes,
+        undersampling=ts.get("undersampling"),
+        apply_undersampling=bool(ts.get("apply_undersampling", False)),
+    )
 
 
 def preparar_holdout_split(

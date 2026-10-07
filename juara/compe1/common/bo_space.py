@@ -10,6 +10,18 @@ MIN_SUM_HESSIAN_LO = 0.001
 MIN_SUM_HESSIAN_HI = 0.01
 
 
+def suggest_params_00(trial: optuna.Trial) -> dict[str, Any]:
+    return {
+        "num_iterations": trial.suggest_int("num_iterations", 2000, 8000),
+        "num_leaves": trial.suggest_int("num_leaves", 10, 4000),
+        "min_sum_hessian_in_leaf": trial.suggest_float(
+            "min_sum_hessian_in_leaf",
+            MIN_SUM_HESSIAN_LO,
+            MIN_SUM_HESSIAN_HI,
+        ),
+    }
+
+
 def suggest_params(trial: optuna.Trial) -> dict[str, Any]:
     return {
         "num_iterations": trial.suggest_int("num_iterations", 2000, 8000),

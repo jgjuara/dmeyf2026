@@ -12,7 +12,7 @@
 
 Generación: pasos 2, 3, 5, 6 y 8 de [`../README.md`](../README.md) (`build_competencia_nocontinuas.py`, `build_competencia_nocontinuas_lag1.py`, `build_rankings.py`, `build_rankings_lag1.py`, `build_rankings_delta1.py`).
 
-**RESULTADOS_DIR:** `juara/compe1/03_rank_nocont_lag1_delta1/00/resultados/` (`HT2103/`, `exp2103/`, `exp2103_top20/`, `estudio/top20_bo_semillas/`).
+**RESULTADOS_DIR:** `juara/compe1/03_rank_nocont_lag1_delta1/00/resultados/` (`HT2103/`, `exp2103/`, `exp2103_top20/`, `exp2103_agosto/`, `estudio/top20_bo_semillas/`).
 
 Plantilla del protocolo común: [`../README.md`](../README.md#estructura-del-modelo-experimental).
 
@@ -39,6 +39,7 @@ Plantilla del protocolo común: [`../README.md`](../README.md#estructura-del-mod
 3_escalar_ganancia   → exp2103/    (opcional; métrica mensual del paso 2)
 4_top20_semillas     → exp2103_top20/rank_XX/  (20 HP × 10 primos; prob_media en test)
 5_analisis_top20     → estudio/top20_bo_semillas/  (ranking + Wilcoxon; sin train)
+6_agosto_semillas    → exp2103_agosto/  (HP top-20; train mar-jun completo; predict 202108; prob media ordenada)
 ```
 
 **Tres usos del 70 %**
@@ -63,6 +64,8 @@ Rscript juara/compe1/03_rank_nocont_lag1_delta1/00/1_bayesiana_lightgbm.R
 Rscript juara/compe1/03_rank_nocont_lag1_delta1/00/2_produccion_lightgbm.R
 Rscript juara/compe1/03_rank_nocont_lag1_delta1/00/4_produccion_top20_bo_semillas.R
 Rscript juara/compe1/03_rank_nocont_lag1_delta1/00/5_analisis_top20_bo_semillas.R
+# scoring agosto (train mar-jun completo; RANKS_BO en script, default rank 03)
+Rscript juara/compe1/03_rank_nocont_lag1_delta1/00/6_prediccion_agosto_top20_semillas.R
 # opcional: escalado mar–jun del mejor HP único
 Rscript juara/compe1/03_rank_nocont_lag1_delta1/00/3_escalar_ganancia_mes.R
 ```
@@ -73,5 +76,8 @@ Rscript juara/compe1/03_rank_nocont_lag1_delta1/00/3_escalar_ganancia_mes.R
 - `00/resultados/exp2103/` — `modelo.txt`, `prediccion.txt` (solo test 30 %), `cortes_ganancia.txt` (holdout sin escalar)
 - `00/resultados/exp2103_top20/rank_XX/` — por rank BO: 10× `modelo_<primo>.txt`, `prediccion_<primo>.txt`, `cortes_ganancia_<primo>.txt`; agregado `prediccion_media.txt`, `curva_ganancia_media.pdf`, `cortes_ganancia_media.txt`
 - `00/resultados/estudio/top20_bo_semillas/` — `top20_hiperparametros.tsv`, `semillas_train.txt`, tablas Wilcoxon, `ranking_por_max_holdout.tsv`, `ganador.yml`, gráficos PDF
+- `00/resultados/exp2103_agosto/` — `prediccion_agosto_media_ordenada.tsv`, `prediccion_agosto_media.tsv`, `prediccion_agosto_por_rank_semilla.tsv`, `meta.yml`
 
 Utilidades compartidas: [`common/compe1_data.R`](../common/compe1_data.R), [`common/compe1_layers.R`](../common/compe1_layers.R).
+
+Estructura detallada de cada script en [`00/README.md`](00/README.md).

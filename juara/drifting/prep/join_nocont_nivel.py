@@ -18,7 +18,7 @@ FE_DIR = JUARA_DIR / "fe"
 sys.path.insert(0, str(FE_DIR))
 
 from columns import columns_to_rank, load_nocontinuas  # noqa: E402
-from paths import NOCONTINUAS_PATH, competencia_nocontinuas_parquet, competencia_parquet  # noqa: E402
+from paths import NOCONTINUAS_PATH, competencia_nocontinuas_v1_parquet, competencia_parquet_v1  # noqa: E402
 
 DATOS_DIR = DRIFTING_DIR / "datos"
 DEFAULT_OUTPUT = DATOS_DIR / "dataset_nocont_nivel.parquet"
@@ -59,8 +59,8 @@ def _continuas_from_schema(con: duckdb.DuckDBPyConnection, comp_path: Path) -> l
 
 
 def build_dataset(con: duckdb.DuckDBPyConnection, dst: Path) -> list[str]:
-    nc_path = competencia_nocontinuas_parquet()
-    comp_path = competencia_parquet()
+    nc_path = competencia_nocontinuas_v1_parquet()
+    comp_path = competencia_parquet_v1()
     for path in (nc_path, comp_path):
         if not path.is_file():
             raise SystemExit(f"Archivo inexistente: {path}")

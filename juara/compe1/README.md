@@ -1,12 +1,12 @@
 # compe1 — LightGBM con alcance variable de FE (parquet)
 
-Tres experimentos paralelos bajo `juara/compe1/`, alineados con la línea R + lightgbm de [`juara/jueves/z494`](../jueves/z494/README.md). Los modelos leen features desde parquets en `juara/data/` (no desde `competencia_01.csv.gz` crudo). Claves de join: `numero_de_cliente`, `foto_mes`. La columna objetivo `clase_ternaria` viene en `competencia_01_nocontinuas.parquet`.
+Tres experimentos paralelos bajo `juara/compe1/`, alineados con la línea R + lightgbm de [`juara/jueves/z494`](../jueves/z494/README.md). Los modelos leen features desde parquets en `juara/data/` (no desde `competencia_01.csv.gz` crudo). Claves de join: `numero_de_cliente`, `foto_mes`. La columna objetivo `clase_ternaria` viene en `competencia_01_nocontinuas_v1.parquet`.
 
 ## Experimentos
 
 | Carpeta | Pregunta de negocio | Capas parquet |
 |---------|---------------------|---------------|
-| [`00`](00/README.md) | Baseline sin FE derivado: solo `competencia_01.parquet` | 1 |
+| [`00`](00/README.md) | Baseline sin FE derivado: solo `competencia_01_v1.parquet` | 1 |
 | [`01_full_fe`](01_full_fe/README.md) | ¿Cuánto aporta el FE completo (lags + rankings + deltas)? | 8 |
 | [`02_rank_nocont`](02_rank_nocont/README.md) | ¿Basta nocontinuas del mes + percentiles `pct_*`? | 2 |
 | [`02_rank_nocount_py`](02_rank_nocount_py/README.md) | Mismo alcance que `02_rank_nocont`; pipeline LightGBM en Python (Optuna) | 2 |
@@ -21,15 +21,16 @@ Premisa: `juara/data/competencia_01_crudo.csv` (o el gzip equivalente usado en e
 
 Orden sugerido (desde la raíz del repo):
 
-1. `Rscript juara/generar_clase_ternaria_parquet.R` → `competencia_01.parquet`
-2. `uv run python juara/fe/build_competencia_nocontinuas.py` → `competencia_01_nocontinuas.parquet`
-3. `uv run python juara/fe/build_competencia_nocontinuas_lag1.py` → `competencia_01_nocontinuas_lag1.parquet`
-4. `uv run python juara/fe/build_competencia_nocontinuas_lag2.py` → `competencia_01_nocontinuas_lag2.parquet`
-5. `uv run python juara/fe/build_rankings.py` → `rankings.parquet`
-6. `uv run python juara/fe/build_rankings_lag1.py` → `rankings_lag1.parquet`
-7. `uv run python juara/fe/build_rankings_lag2.py` → `rankings_lag2.parquet`
-8. `uv run python juara/fe/build_rankings_delta1.py` → `rankings_delta1.parquet`
-9. `uv run python juara/fe/build_rankings_delta2.py` → `rankings_delta2.parquet`
+1. `Rscript juara/generar_clase_ternaria_parquet.R` → `competencia_01_v1.parquet` (o `uv run python juara/fe/build_competencia_01_parquet_v1.py`)
+2. `uv run python juara/fe/build_competencia_01_clean_v1.py` → `competencia_01_clean_v1.parquet`
+3. `uv run python juara/fe/build_competencia_nocontinuas_v1.py` → `competencia_01_nocontinuas_v1.parquet`
+4. `uv run python juara/fe/build_competencia_nocontinuas_v1_lag1.py` → `competencia_01_nocontinuas_v1_lag1.parquet`
+5. `uv run python juara/fe/build_competencia_nocontinuas_v1_lag2.py` → `competencia_01_nocontinuas_v1_lag2.parquet`
+6. `uv run python juara/fe/build_rankings_v1.py` → `rankings_v1.parquet`
+7. `uv run python juara/fe/build_rankings_v1_lag1.py` → `rankings_v1_lag1.parquet`
+8. `uv run python juara/fe/build_rankings_v1_lag2.py` → `rankings_v1_lag2.parquet`
+9. `uv run python juara/fe/build_rankings_v1_delta1.py` → `rankings_v1_delta1.parquet`
+10. `uv run python juara/fe/build_rankings_v1_delta2.py` → `rankings_v1_delta2.parquet`
 
 Los `.parquet` suelen ser locales o gitignored; no hace falta tenerlos versionados para usar este layout.
 
@@ -98,6 +99,8 @@ Escala la ganancia observada en el subconjunto test de cada `foto_mes` a “mes 
 ### Ganancia de negocio (común)
 
 Top-N clientes por `prob` (o `prob_media`): `+1_072_500` si `BAJA+2`, `-27_500` en caso contrario (`compe1_ganancia_envio`).
+
+Procedimiento para elegir **envíos** con promedio de semillas (uno o varios modelos): [`common/seleccion_envios.md`](common/seleccion_envios.md).
 
 Utilidades: [`common/compe1_data.R`](common/compe1_data.R) (`particionar`, `compe1_aplicar_undersampling_train`, `compe1_lgb_cv_best_auc`, `compe1_semillas_primos`, `compe1_preparar_holdout_split`).
 

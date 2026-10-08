@@ -39,7 +39,7 @@ dataset[, clase_ternaria := dsimple$clase_ternaria]
 require("arrow")
 arrow::write_parquet(
   dataset,
-  sink = file.path(DATA_DIR, "competencia_01.parquet"),
+  sink = file.path(DATA_DIR, "competencia_01_v1.parquet"),
   compression = "uncompressed"
 )
 

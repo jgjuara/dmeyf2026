@@ -1,13 +1,13 @@
 # 02_rank_nocont
 
-**Alcance:** flags y conteos nocontinuas del mes + percentiles `pct_*` de `rankings.parquet` (sin lags ni deltas). Equivalente conceptual a `feature_scope = sin_lag_delta` en Miranda.
+**Alcance:** flags y conteos nocontinuas del mes + percentiles `pct_*` de `rankings_v1.parquet` (sin lags ni deltas). Equivalente conceptual a `feature_scope = sin_lag_delta` en Miranda.
 
 **Capas parquet:**
 
-- `competencia_01_nocontinuas.parquet`
-- `rankings.parquet`
+- `competencia_01_nocontinuas_v1.parquet`
+- `rankings_v1.parquet`
 
-Generación: pasos 2 y 5 de [`../README.md`](../README.md) (`build_competencia_nocontinuas.py`, `build_rankings.py`).
+Generación: pasos 3 y 6 de [`../README.md`](../README.md) (`build_competencia_nocontinuas_v1.py`, `build_rankings_v1.py`).
 
 **RESULTADOS_DIR:** `juara/compe1/02_rank_nocont/00/resultados/` (`HT2102/`, `exp2102/`, `exp2102_top20/`, `estudio/top20_bo_semillas/`).
 

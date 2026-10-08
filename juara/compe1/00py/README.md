@@ -1,8 +1,8 @@
 # 00py
 
-Port Python del protocolo [`00`](../00/README.md) (exp **1990**): capa `competencia_01.parquet`, split temporal mar–may / test junio, BO con **Optuna** en lugar de mlrMBO. Sin script `3_escalar` (no aplica a este experimento).
+Port Python del protocolo [`00`](../00/README.md) (exp **1990**): capa `competencia_01_v1.parquet`, split temporal mar–may / test junio, BO con **Optuna** en lugar de mlrMBO. Sin script `3_escalar` (no aplica a este experimento).
 
-**Capas:** `competencia_01.parquet`.
+**Capas:** `competencia_01_v1.parquet`.
 
 **Resultados:** `juara/compe1/00py/00/resultados/` (`HT1990/`, `exp1990/`, `exp1990_top20/`, `exp1990_agosto/`, `estudio/top20_bo_semillas/`).
 

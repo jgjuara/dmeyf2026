@@ -13,7 +13,7 @@ uv run python miranda/final/run_pipeline.py
 ```
 
 La ejecución reconstruye cohorte, métricas, gráficos, validación de perfiles e
-informe. Requiere `data/competencia_01.parquet`.
+informe. Requiere `data/competencia_01_v1.parquet`.
 
 ## Diseño
 

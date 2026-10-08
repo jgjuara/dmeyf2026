@@ -1,10 +1,10 @@
 # 00
 
-**Alcance:** columnas de [`juara/data/competencia_01.parquet`](../../data/competencia_01.parquet) sin capas de feature engineering (sin nocontinuas derivadas, rankings, lags ni deltas).
+**Alcance:** columnas de [`juara/data/competencia_01_v1.parquet`](../../data/competencia_01_v1.parquet) sin capas de feature engineering (sin nocontinuas derivadas, rankings, lags ni deltas).
 
 **Capas parquet:**
 
-- `competencia_01.parquet`
+- `competencia_01_v1.parquet`
 
 Generación: `Rscript juara/generar_clase_ternaria_parquet.R` (desde `competencia_01_crudo.csv`).
 

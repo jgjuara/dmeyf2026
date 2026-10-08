@@ -1,16 +1,16 @@
 # 03_rank_nocont_lag1_delta1
 
-**Alcance:** nocontinuas y rankings del mes, más lag1 (nocontinuas + `pct_*` de `rankings_lag1.parquet`) y delta1 (`rankings_delta1.parquet`); sin lag2, delta2 ni capas asociadas.
+**Alcance:** nocontinuas y rankings del mes, más lag1 (nocontinuas + `pct_*` de `rankings_v1_lag1.parquet`) y delta1 (`rankings_v1_delta1.parquet`); sin lag2, delta2 ni capas asociadas.
 
 **Capas parquet:**
 
-- `competencia_01_nocontinuas.parquet`
-- `rankings.parquet`
-- `competencia_01_nocontinuas_lag1.parquet`
-- `rankings_lag1.parquet`
-- `rankings_delta1.parquet`
+- `competencia_01_nocontinuas_v1.parquet`
+- `rankings_v1.parquet`
+- `competencia_01_nocontinuas_v1_lag1.parquet`
+- `rankings_v1_lag1.parquet`
+- `rankings_v1_delta1.parquet`
 
-Generación: pasos 2, 3, 5, 6 y 8 de [`../README.md`](../README.md) (`build_competencia_nocontinuas.py`, `build_competencia_nocontinuas_lag1.py`, `build_rankings.py`, `build_rankings_lag1.py`, `build_rankings_delta1.py`).
+Generación: pasos 3, 4, 6, 7 y 9 de [`../README.md`](../README.md) (`build_competencia_nocontinuas_v1.py`, `build_competencia_nocontinuas_v1_lag1.py`, `build_rankings_v1.py`, `build_rankings_v1_lag1.py`, `build_rankings_v1_delta1.py`).
 
 **RESULTADOS_DIR:** `juara/compe1/03_rank_nocont_lag1_delta1/00/resultados/` (`HT2103/`, `exp2103/`, `exp2103_top20/`, `exp2103_agosto/`, `estudio/top20_bo_semillas/`).
 

@@ -1,25 +1,25 @@
 # 03_cont_nocont_lag1_delta1
 
-**Alcance:** nocontinuas del mes y lag1 nocont, más métricas **continuas en nivel** (`competencia_01_continuas.parquet`), lag1 y delta1 de continuas; **sin** percentiles `pct_*`, `rankings_*`, lag2 ni delta2.
+**Alcance:** nocontinuas del mes y lag1 nocont, más métricas **continuas en nivel** (`competencia_01_continuas_v1.parquet`), lag1 y delta1 de continuas; **sin** percentiles `pct_*`, `rankings_*`, lag2 ni delta2.
 
 Contraste con [`03_rank_nocont_lag1_delta1`](../03_rank_nocont_lag1_delta1/README.md): mismo protocolo de split, BO y ganancia (exp **2104** vs **2103**); solo cambia el bloque de features continuas (nivel crudo vs rankings).
 
 **Capas parquet:**
 
-- `competencia_01_nocontinuas.parquet`
-- `competencia_01_continuas.parquet`
-- `competencia_01_nocontinuas_lag1.parquet`
-- `competencia_01_continuas_lag1.parquet`
-- `competencia_01_continuas_delta1.parquet`
+- `competencia_01_nocontinuas_v1.parquet`
+- `competencia_01_continuas_v1.parquet`
+- `competencia_01_nocontinuas_v1_lag1.parquet`
+- `competencia_01_continuas_v1_lag1.parquet`
+- `competencia_01_continuas_v1_delta1.parquet`
 
-Generación (desde la raíz del repo, con `competencia_01.parquet`):
+Generación (desde la raíz del repo, con `competencia_01_clean_v1.parquet`):
 
 ```bash
-uv run python juara/fe/build_competencia_nocontinuas.py
-uv run python juara/fe/build_competencia_nocontinuas_lag1.py
-uv run python juara/fe/build_competencia_continuas.py
-uv run python juara/fe/build_competencia_continuas_lag1.py
-uv run python juara/fe/build_competencia_continuas_delta1.py
+uv run python juara/fe/build_competencia_nocontinuas_v1.py
+uv run python juara/fe/build_competencia_nocontinuas_v1_lag1.py
+uv run python juara/fe/build_competencia_continuas_v1.py
+uv run python juara/fe/build_competencia_continuas_v1_lag1.py
+uv run python juara/fe/build_competencia_continuas_v1_delta1.py
 ```
 
 **RESULTADOS_DIR:** `juara/compe1/03_cont_nocont_lag1_delta1/00/resultados/` (`HT2104/`, `exp2104/`, `exp2104_top20/`, `estudio/top20_bo_semillas/`).

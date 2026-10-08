@@ -1,4 +1,4 @@
-"""delta1 por cliente desde rankings.parquet → rankings_delta1.parquet."""
+"""lag1 por cliente desde competencia_01_nocontinuas_v1.parquet → competencia_01_nocontinuas_v1_lag1.parquet."""
 
 from __future__ import annotations
 
@@ -6,8 +6,9 @@ import sys
 
 import duckdb
 
-from columns import KEY_COLUMNS
-from paths import rankings_delta1_parquet, rankings_parquet
+from columns import columns_for_lag1
+from gcs_upload import ensure_local_parquet, upload_parquet
+from paths import competencia_nocontinuas_v1_lag1_parquet, competencia_nocontinuas_v1_parquet
 
 
 def _quote_ident(name: str) -> str:
@@ -18,16 +19,16 @@ def _window() -> str:
     return "PARTITION BY numero_de_cliente ORDER BY foto_mes ASC"
 
 
-def _delta_expr(column: str) -> str:
+def _lag_expr(column: str) -> str:
     col = _quote_ident(column)
-    alias = _quote_ident(f"delta1_{column}")
-    win = _window()
-    return f"{col} - LAG({col}, 1) OVER ({win}) AS {alias}"
+    alias = _quote_ident(f"lag1_{column}")
+    return f"LAG({col}, 1) OVER ({_window()}) AS {alias}"
 
 
 def main() -> None:
-    src = rankings_parquet()
-    dst = rankings_delta1_parquet()
+    src = competencia_nocontinuas_v1_parquet()
+    dst = competencia_nocontinuas_v1_lag1_parquet()
+    ensure_local_parquet(src)
     if not src.is_file():
         raise SystemExit(f"Archivo inexistente: {src}")
 
@@ -38,12 +39,12 @@ def main() -> None:
         f"DESCRIBE SELECT * FROM read_parquet('{src_sql}')"
     ).fetchall()
     all_columns = [row[0] for row in schema_rows]
-    metric_columns = [c for c in all_columns if c not in KEY_COLUMNS]
+    metric_columns = columns_for_lag1(all_columns)
 
     print(f"columnas fuente: {len(all_columns)}")
-    print(f"columnas delta1: {len(metric_columns)}")
+    print(f"columnas lag1: {len(metric_columns)}")
 
-    delta_exprs = ",\n  ".join(_delta_expr(c) for c in metric_columns)
+    lag_exprs = ",\n  ".join(_lag_expr(c) for c in metric_columns)
     dst_sql = str(dst).replace("'", "''")
 
     con.execute(
@@ -52,7 +53,7 @@ def main() -> None:
           SELECT
             numero_de_cliente,
             foto_mes,
-            {delta_exprs}
+            {lag_exprs}
           FROM read_parquet('{src_sql}')
         ) TO '{dst_sql}' (FORMAT PARQUET, COMPRESSION 'UNCOMPRESSED')
         """
@@ -86,23 +87,22 @@ def main() -> None:
     if n_cols != expected_cols:
         raise SystemExit("Validación fallida: distinto número de columnas")
 
-    sample_delta = "delta1_pct_mrentabilidad"
-    print(f"min/max {sample_delta} por foto_mes (no nulos):")
+    sample_lag = f"lag1_{metric_columns[0]}"
+    print(f"filas con {sample_lag} IS NULL por foto_mes:")
     rows = con.execute(
         f"""
-        SELECT foto_mes,
-               MIN({_quote_ident(sample_delta)}),
-               MAX({_quote_ident(sample_delta)})
+        SELECT foto_mes, COUNT(*)
         FROM read_parquet('{dst_sql}')
-        WHERE {_quote_ident(sample_delta)} IS NOT NULL
+        WHERE {_quote_ident(sample_lag)} IS NULL
         GROUP BY foto_mes
         ORDER BY foto_mes
         """
     ).fetchall()
-    for foto_mes, vmin, vmax in rows:
-        print(f"  {foto_mes}: {vmin} .. {vmax}")
+    for foto_mes, n_null in rows:
+        print(f"  {foto_mes}: {n_null}")
 
     print(f"escrito: {dst}")
+    upload_parquet(dst)
 
 
 if __name__ == "__main__":

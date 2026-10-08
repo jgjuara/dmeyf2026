@@ -1,4 +1,4 @@
-"""Drift de distribución por foto_mes en columnas pct_* de rankings.parquet."""
+"""Drift de distribución por foto_mes en columnas pct_* de rankings_v1.parquet."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from dataset import EDA_DIR, JUARA_DIR
 from frecuencias_por_columna import serie_float
 
 MES_COL = "foto_mes"
-RANKINGS_PATH = JUARA_DIR / "data" / "rankings.parquet"
+RANKINGS_PATH = JUARA_DIR / "data" / "rankings_v1.parquet"
 
 
 def rankings_path() -> Path:
@@ -172,7 +172,7 @@ def main() -> None:
     meses = orden_meses(df[MES_COL])
     columnas = [c for c in df.columns if c.startswith("pct_")]
     if not columnas:
-        raise SystemExit("No hay columnas pct_* en rankings.parquet")
+        raise SystemExit("No hay columnas pct_* en rankings_v1.parquet")
 
     out_root = args.out
     out_root.mkdir(parents=True, exist_ok=True)

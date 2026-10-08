@@ -1,4 +1,4 @@
-"""Percentiles por foto_mes desde competencia_01.parquet → rankings.parquet."""
+"""Percentiles por foto_mes desde competencia_01_v1.parquet → rankings_v1.parquet."""
 
 from __future__ import annotations
 
@@ -11,7 +11,8 @@ from pathlib import Path
 import duckdb
 
 from columns import columns_to_rank, load_nocontinuas
-from paths import NOCONTINUAS_PATH, competencia_parquet, rankings_parquet
+from gcs_upload import ensure_local_parquet, upload_parquet
+from paths import NOCONTINUAS_PATH, competencia_parquet_v1, rankings_v1_parquet
 
 # Ventanas encadenadas en un solo SELECT multiplican el pico de RAM; lotes más chicos = menos pico.
 PCT_BATCH_SIZE = max(1, int(os.environ.get("RANKINGS_PCT_BATCH", "8")))
@@ -119,8 +120,9 @@ def _build_rankings_batched(
 
 
 def main() -> None:
-    src = competencia_parquet()
-    dst = rankings_parquet()
+    src = competencia_parquet_v1()
+    dst = rankings_v1_parquet()
+    ensure_local_parquet(src)
     if not src.is_file():
         raise SystemExit(f"Archivo inexistente: {src}")
 
@@ -187,6 +189,7 @@ def main() -> None:
         print(f"  {foto_mes}: {vmin} .. {vmax}")
 
     print(f"escrito: {dst}")
+    upload_parquet(dst)
 
 
 if __name__ == "__main__":

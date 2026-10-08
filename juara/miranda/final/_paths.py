@@ -7,7 +7,7 @@ from pathlib import Path
 
 FINAL_DIR = Path(__file__).resolve().parent
 JUARA_DIR = FINAL_DIR.parents[1]
-SOURCE_PARQUET = JUARA_DIR / "data" / "competencia_01.parquet"
+SOURCE_PARQUET = JUARA_DIR / "data" / "competencia_01_v1.parquet"
 RESULTADOS_DIR = FINAL_DIR / "resultados"
 RESULTS_DIR = RESULTADOS_DIR
 TABLAS_DIR = RESULTADOS_DIR / "tablas"

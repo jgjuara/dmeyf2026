@@ -12,48 +12,48 @@ COMPE1_EXPERIMENT_IDS <- c(
 )
 
 .compe1_layers_by_id <- list(
-  "00" = c("competencia_01.parquet"),
+  "00" = c("competencia_01_v1.parquet"),
   "01py" = c(
-    "competencia_01_nocontinuas.parquet",
-    "competencia_01_nocontinuas_lag1.parquet",
-    "competencia_01_nocontinuas_lag2.parquet",
-    "rankings.parquet",
-    "rankings_lag1.parquet",
-    "rankings_lag2.parquet",
-    "rankings_delta1.parquet",
-    "rankings_delta2.parquet"
+    "competencia_01_nocontinuas_v1.parquet",
+    "competencia_01_nocontinuas_v1_lag1.parquet",
+    "competencia_01_nocontinuas_v1_lag2.parquet",
+    "rankings_v1.parquet",
+    "rankings_v1_lag1.parquet",
+    "rankings_v1_lag2.parquet",
+    "rankings_v1_delta1.parquet",
+    "rankings_v1_delta2.parquet"
   ),
   "01_full_fe" = c(
-    "competencia_01_nocontinuas.parquet",
-    "competencia_01_nocontinuas_lag1.parquet",
-    "competencia_01_nocontinuas_lag2.parquet",
-    "rankings.parquet",
-    "rankings_lag1.parquet",
-    "rankings_lag2.parquet",
-    "rankings_delta1.parquet",
-    "rankings_delta2.parquet"
+    "competencia_01_nocontinuas_v1.parquet",
+    "competencia_01_nocontinuas_v1_lag1.parquet",
+    "competencia_01_nocontinuas_v1_lag2.parquet",
+    "rankings_v1.parquet",
+    "rankings_v1_lag1.parquet",
+    "rankings_v1_lag2.parquet",
+    "rankings_v1_delta1.parquet",
+    "rankings_v1_delta2.parquet"
   ),
   "02_rank_nocont" = c(
-    "competencia_01_nocontinuas.parquet",
-    "rankings.parquet"
+    "competencia_01_nocontinuas_v1.parquet",
+    "rankings_v1.parquet"
   ),
   "02_rank_nocount_py" = c(
-    "competencia_01_nocontinuas.parquet",
-    "rankings.parquet"
+    "competencia_01_nocontinuas_v1.parquet",
+    "rankings_v1.parquet"
   ),
   "03_rank_nocont_lag1_delta1" = c(
-    "competencia_01_nocontinuas.parquet",
-    "rankings.parquet",
-    "competencia_01_nocontinuas_lag1.parquet",
-    "rankings_lag1.parquet",
-    "rankings_delta1.parquet"
+    "competencia_01_nocontinuas_v1.parquet",
+    "rankings_v1.parquet",
+    "competencia_01_nocontinuas_v1_lag1.parquet",
+    "rankings_v1_lag1.parquet",
+    "rankings_v1_delta1.parquet"
   ),
   "03_cont_nocont_lag1_delta1" = c(
-    "competencia_01_nocontinuas.parquet",
-    "competencia_01_continuas.parquet",
-    "competencia_01_nocontinuas_lag1.parquet",
-    "competencia_01_continuas_lag1.parquet",
-    "competencia_01_continuas_delta1.parquet"
+    "competencia_01_nocontinuas_v1.parquet",
+    "competencia_01_continuas_v1.parquet",
+    "competencia_01_nocontinuas_v1_lag1.parquet",
+    "competencia_01_continuas_v1_lag1.parquet",
+    "competencia_01_continuas_v1_delta1.parquet"
   )
 )
 

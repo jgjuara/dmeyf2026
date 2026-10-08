@@ -1,4 +1,4 @@
-"""delta1 por cliente desde competencia_01_continuas.parquet → competencia_01_continuas_delta1.parquet."""
+"""delta1 por cliente desde competencia_01_continuas_v1.parquet → competencia_01_continuas_v1_delta1.parquet."""
 
 from __future__ import annotations
 
@@ -7,7 +7,8 @@ import sys
 import duckdb
 
 from columns import KEY_COLUMNS
-from paths import competencia_continuas_delta1_parquet, competencia_continuas_parquet
+from gcs_upload import ensure_local_parquet, upload_parquet
+from paths import competencia_continuas_v1_delta1_parquet, competencia_continuas_v1_parquet
 
 
 def _quote_ident(name: str) -> str:
@@ -26,8 +27,9 @@ def _delta_expr(column: str) -> str:
 
 
 def main() -> None:
-    src = competencia_continuas_parquet()
-    dst = competencia_continuas_delta1_parquet()
+    src = competencia_continuas_v1_parquet()
+    dst = competencia_continuas_v1_delta1_parquet()
+    ensure_local_parquet(src)
     if not src.is_file():
         raise SystemExit(f"Archivo inexistente: {src}")
 
@@ -103,6 +105,7 @@ def main() -> None:
         print(f"  {foto_mes}: {vmin} .. {vmax}")
 
     print(f"escrito: {dst}")
+    upload_parquet(dst)
 
 
 if __name__ == "__main__":

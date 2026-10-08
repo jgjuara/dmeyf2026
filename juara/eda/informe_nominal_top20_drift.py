@@ -16,7 +16,7 @@ from frecuencias_por_columna import col_safe, serie_float
 MES_COL = "foto_mes"
 ID_COL = "numero_de_cliente"
 DEFAULT_DRIFT = EDA_DIR / "resultados" / "drift_rankings" / "drift_por_columna.csv"
-DEFAULT_COMPETENCIA = JUARA_DIR / "data" / "competencia_01.parquet"
+DEFAULT_COMPETENCIA = JUARA_DIR / "data" / "competencia_01_v1.parquet"
 DEFAULT_OUT = EDA_DIR / "resultados" / "drift_rankings_nominal"
 
 MEDIAN_CHANGE_THRESH = 0.10
@@ -51,7 +51,7 @@ def validar_nominales(drift: pl.DataFrame, schema_cols: set[str]) -> list[tuple[
             pares.append((pct_col, nominal))
     if faltantes:
         raise SystemExit(
-            "Columnas nominales ausentes en competencia_01.parquet: "
+            "Columnas nominales ausentes en competencia_01_v1.parquet: "
             + ", ".join(faltantes)
         )
     return pares
@@ -306,7 +306,7 @@ def generar_informe(
         "",
         "## Metodología",
         "",
-        "Valores leídos de `competencia_01.parquet` (columnas sin prefijo `pct_`). "
+        "Valores leídos de `competencia_01_v1.parquet` (columnas sin prefijo `pct_`). "
         "El ranking por drift proviene del informe previo sobre columnas `pct_*` "
         "(`drift_por_columna.csv`): score principal = media de D de Kolmogorov–Smirnov "
         "entre meses consecutivos.",

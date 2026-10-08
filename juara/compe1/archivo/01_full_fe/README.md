@@ -4,14 +4,14 @@
 
 **Capas parquet** (orden de join sugerido; ver `compe1_layers("01_full_fe")`):
 
-- `competencia_01_nocontinuas.parquet`
-- `competencia_01_nocontinuas_lag1.parquet`
-- `competencia_01_nocontinuas_lag2.parquet`
-- `rankings.parquet`
-- `rankings_lag1.parquet`
-- `rankings_lag2.parquet`
-- `rankings_delta1.parquet`
-- `rankings_delta2.parquet`
+- `competencia_01_nocontinuas_v1.parquet`
+- `competencia_01_nocontinuas_v1_lag1.parquet`
+- `competencia_01_nocontinuas_v1_lag2.parquet`
+- `rankings_v1.parquet`
+- `rankings_v1_lag1.parquet`
+- `rankings_v1_lag2.parquet`
+- `rankings_v1_delta1.parquet`
+- `rankings_v1_delta2.parquet`
 
 **RESULTADOS_DIR:** `juara/compe1/01_full_fe/00/resultados/` (creado por los scripts en `00/`).
 

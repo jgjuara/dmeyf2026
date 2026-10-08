@@ -2,7 +2,7 @@
 
 Port Python del protocolo [`02_rank_nocont`](../02_rank_nocont/README.md) (exp **2102**): mismas capas parquet, mismos artefactos bajo `00/resultados/`. Partición y undersampling en [`common/partition.py`](../common/partition.py) (solo Python/numpy). BO con **Optuna** (`HT2102/optuna.db`) en lugar de mlrMBO.
 
-**Capas:** `competencia_01_nocontinuas.parquet`, `rankings.parquet`.
+**Capas:** `competencia_01_nocontinuas_v1.parquet`, `rankings_v1.parquet`.
 
 **Utilidades:** [`common/layers.py`](../common/layers.py), [`common/data.py`](../common/data.py), [`common/partition.py`](../common/partition.py), [`common/lgb_train.py`](../common/lgb_train.py).
 

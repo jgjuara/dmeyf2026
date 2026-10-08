@@ -1,4 +1,4 @@
-"""Subconjunto de competencia_01.parquet: claves y métricas continuas (sin nocontinuas)."""
+"""Subconjunto de competencia_01_v1.parquet: claves y métricas continuas (sin nocontinuas)."""
 
 from __future__ import annotations
 
@@ -7,7 +7,8 @@ import sys
 import duckdb
 
 from columns import columns_competencia_continuas, load_nocontinuas
-from paths import NOCONTINUAS_PATH, competencia_continuas_parquet, competencia_parquet
+from gcs_upload import ensure_local_parquet, upload_parquet
+from paths import NOCONTINUAS_PATH, competencia_continuas_v1_parquet, competencia_parquet_v1
 
 
 def _quote_ident(name: str) -> str:
@@ -15,8 +16,9 @@ def _quote_ident(name: str) -> str:
 
 
 def main() -> None:
-    src = competencia_parquet()
-    dst = competencia_continuas_parquet()
+    src = competencia_parquet_v1()
+    dst = competencia_continuas_v1_parquet()
+    ensure_local_parquet(src)
     if not src.is_file():
         raise SystemExit(f"Archivo inexistente: {src}")
 
@@ -67,6 +69,7 @@ def main() -> None:
         raise SystemExit("Validación fallida: distinto número de columnas")
 
     print(f"escrito: {dst}")
+    upload_parquet(dst)
 
 
 if __name__ == "__main__":

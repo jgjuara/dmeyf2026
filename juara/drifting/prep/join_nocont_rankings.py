@@ -13,7 +13,7 @@ JUARA_DIR = DRIFTING_DIR.parent
 FE_DIR = JUARA_DIR / "fe"
 sys.path.insert(0, str(FE_DIR))
 
-from paths import competencia_nocontinuas_parquet, rankings_parquet  # noqa: E402
+from paths import competencia_nocontinuas_v1_parquet, rankings_v1_parquet  # noqa: E402
 
 DATOS_DIR = DRIFTING_DIR / "datos"
 DEFAULT_OUTPUT = DATOS_DIR / "dataset_nocont_rank.parquet"
@@ -43,8 +43,8 @@ def _connect() -> duckdb.DuckDBPyConnection:
 
 
 def build_dataset(con: duckdb.DuckDBPyConnection, dst: Path) -> None:
-    nc_path = competencia_nocontinuas_parquet()
-    rk_path = rankings_parquet()
+    nc_path = competencia_nocontinuas_v1_parquet()
+    rk_path = rankings_v1_parquet()
     for path in (nc_path, rk_path):
         if not path.is_file():
             raise SystemExit(f"Archivo inexistente: {path}")
@@ -71,7 +71,7 @@ def build_dataset(con: duckdb.DuckDBPyConnection, dst: Path) -> None:
 
 def _validate(con: duckdb.DuckDBPyConnection, dst: Path) -> None:
     dst_sql = _sql_path(dst)
-    nc_sql = _sql_path(competencia_nocontinuas_parquet())
+    nc_sql = _sql_path(competencia_nocontinuas_v1_parquet())
 
     n_rows = con.execute(f"SELECT COUNT(*) FROM read_parquet('{dst_sql}')").fetchone()[0]
     n_ref = con.execute(f"SELECT COUNT(*) FROM read_parquet('{nc_sql}')").fetchone()[0]

@@ -1035,7 +1035,7 @@ def write_informe(
 
 ## Alcance y calidad de datos
 
-- Fuente: `data/competencia_01.parquet`; fotos observadas: {", ".join(map(str, ALL_FOTO_MESES))}.
+- Fuente: `data/competencia_01_v1.parquet`; fotos observadas: {", ".join(map(str, ALL_FOTO_MESES))}.
 - Anclas configuradas y válidas: {", ".join(map(str, ANCHOR_MONTHS))}; horizontes BAJA+1 y BAJA+2.
 - CONTINUA se seleccionó de forma determinista por `(foto_mes_ancla, horizonte_evento)`, con razón {CONTROL_RATIO}:1 y semilla {SAMPLE_SEED}; se excluyeron clientes BAJA.
 - Semántica de BAJA: un cliente rotulado BAJA+1 en la foto `t` deja de estar en la base en `t+1`; para BAJA+2 deja de estar en `t+2`. En este informe `mes_relativo=0` es esa primera foto sin registro, no una observación. BAJA+1 se ancla en `t=-1` y BAJA+2 en `t=-2`.

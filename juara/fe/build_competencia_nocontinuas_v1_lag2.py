@@ -1,4 +1,4 @@
-"""lag1 por cliente desde competencia_01_continuas.parquet → competencia_01_continuas_lag1.parquet."""
+"""lag2 por cliente desde competencia_01_nocontinuas_v1.parquet → competencia_01_nocontinuas_v1_lag2.parquet."""
 
 from __future__ import annotations
 
@@ -6,8 +6,9 @@ import sys
 
 import duckdb
 
-from columns import KEY_COLUMNS
-from paths import competencia_continuas_lag1_parquet, competencia_continuas_parquet
+from columns import columns_for_lag1
+from gcs_upload import ensure_local_parquet, upload_parquet
+from paths import competencia_nocontinuas_v1_lag2_parquet, competencia_nocontinuas_v1_parquet
 
 
 def _quote_ident(name: str) -> str:
@@ -20,13 +21,14 @@ def _window() -> str:
 
 def _lag_expr(column: str) -> str:
     col = _quote_ident(column)
-    alias = _quote_ident(f"lag1_{column}")
-    return f"LAG({col}, 1) OVER ({_window()}) AS {alias}"
+    alias = _quote_ident(f"lag2_{column}")
+    return f"LAG({col}, 2) OVER ({_window()}) AS {alias}"
 
 
 def main() -> None:
-    src = competencia_continuas_parquet()
-    dst = competencia_continuas_lag1_parquet()
+    src = competencia_nocontinuas_v1_parquet()
+    dst = competencia_nocontinuas_v1_lag2_parquet()
+    ensure_local_parquet(src)
     if not src.is_file():
         raise SystemExit(f"Archivo inexistente: {src}")
 
@@ -37,10 +39,10 @@ def main() -> None:
         f"DESCRIBE SELECT * FROM read_parquet('{src_sql}')"
     ).fetchall()
     all_columns = [row[0] for row in schema_rows]
-    metric_columns = [c for c in all_columns if c not in KEY_COLUMNS]
+    metric_columns = columns_for_lag1(all_columns)
 
     print(f"columnas fuente: {len(all_columns)}")
-    print(f"columnas lag1: {len(metric_columns)}")
+    print(f"columnas lag2: {len(metric_columns)}")
 
     lag_exprs = ",\n  ".join(_lag_expr(c) for c in metric_columns)
     dst_sql = str(dst).replace("'", "''")
@@ -85,7 +87,7 @@ def main() -> None:
     if n_cols != expected_cols:
         raise SystemExit("Validación fallida: distinto número de columnas")
 
-    sample_lag = "lag1_mactivos_margen"
+    sample_lag = f"lag2_{metric_columns[0]}"
     print(f"filas con {sample_lag} IS NULL por foto_mes:")
     rows = con.execute(
         f"""
@@ -100,6 +102,7 @@ def main() -> None:
         print(f"  {foto_mes}: {n_null}")
 
     print(f"escrito: {dst}")
+    upload_parquet(dst)
 
 
 if __name__ == "__main__":

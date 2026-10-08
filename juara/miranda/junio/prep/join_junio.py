@@ -17,14 +17,14 @@ FE_DIR = JUARA_DIR / "fe"
 sys.path.insert(0, str(FE_DIR))
 
 from paths import (  # noqa: E402
-    competencia_nocontinuas_lag1_parquet,
-    competencia_nocontinuas_lag2_parquet,
-    competencia_nocontinuas_parquet,
-    rankings_delta1_parquet,
-    rankings_delta2_parquet,
-    rankings_lag1_parquet,
-    rankings_lag2_parquet,
-    rankings_parquet,
+    competencia_nocontinuas_v1_lag1_parquet,
+    competencia_nocontinuas_v1_lag2_parquet,
+    competencia_nocontinuas_v1_parquet,
+    rankings_v1_delta1_parquet,
+    rankings_v1_delta2_parquet,
+    rankings_v1_lag1_parquet,
+    rankings_v1_lag2_parquet,
+    rankings_v1_parquet,
 )
 
 DUCKDB_MEMORY_LIMIT = os.environ.get("DUCKDB_MEMORY_LIMIT", "4GB")
@@ -127,14 +127,14 @@ def _copy_join(
 
 def _dataset_layers() -> list[tuple[str, Path]]:
     return [
-        ("competencia_nocontinuas", competencia_nocontinuas_parquet()),
-        ("competencia_nocontinuas_lag1", competencia_nocontinuas_lag1_parquet()),
-        ("competencia_nocontinuas_lag2", competencia_nocontinuas_lag2_parquet()),
-        ("rankings", rankings_parquet()),
-        ("rankings_lag1", rankings_lag1_parquet()),
-        ("rankings_lag2", rankings_lag2_parquet()),
-        ("rankings_delta1", rankings_delta1_parquet()),
-        ("rankings_delta2", rankings_delta2_parquet()),
+        ("competencia_nocontinuas", competencia_nocontinuas_v1_parquet()),
+        ("competencia_nocontinuas_lag1", competencia_nocontinuas_v1_lag1_parquet()),
+        ("competencia_nocontinuas_lag2", competencia_nocontinuas_v1_lag2_parquet()),
+        ("rankings", rankings_v1_parquet()),
+        ("rankings_lag1", rankings_v1_lag1_parquet()),
+        ("rankings_lag2", rankings_v1_lag2_parquet()),
+        ("rankings_delta1", rankings_v1_delta1_parquet()),
+        ("rankings_delta2", rankings_v1_delta2_parquet()),
     ]
 
 
@@ -198,7 +198,7 @@ def _validate(con: duckdb.DuckDBPyConnection, dst: Path) -> None:
         """
     ).fetchall()
 
-    ref_path = competencia_nocontinuas_parquet()
+    ref_path = competencia_nocontinuas_v1_parquet()
     base_ref_sql = _filtered_source_sql(ref_path, base_layer=True)
     n_ref = con.execute(f"SELECT COUNT(*) FROM {base_ref_sql}").fetchone()[0]
     n_bad_clase = con.execute(

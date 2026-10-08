@@ -7,7 +7,7 @@ from functools import lru_cache
 import duckdb
 
 from columns import columns_to_rank, load_nocontinuas
-from paths import NOCONTINUAS_PATH, competencia_parquet
+from paths import NOCONTINUAS_PATH, competencia_parquet_v1
 
 META_COLS = frozenset({"numero_de_cliente", "foto_mes", "clase_ternaria", "grupo"})
 
@@ -20,7 +20,7 @@ def nocontinuas_feature_names() -> frozenset[str]:
 
 @lru_cache(maxsize=1)
 def continuous_metric_names() -> frozenset[str]:
-    comp = competencia_parquet()
+    comp = competencia_parquet_v1()
     if not comp.is_file():
         raise FileNotFoundError(f"No existe competencia: {comp}")
     nocontinuas = nocontinuas_feature_names()

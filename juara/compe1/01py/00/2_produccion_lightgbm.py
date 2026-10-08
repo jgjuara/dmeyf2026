@@ -53,7 +53,6 @@ def main() -> None:
         }
     ).sort("Gain", descending=True)
     imp.write_csv(prod_dir / "impo.txt", separator="\t")
-    model.save_model(str(prod_dir / "modelo.txt"))
 
     X_test = feature_matrix(test_df, campos_buenos)
     pred = model.predict(X_test)

@@ -68,7 +68,6 @@ def _producir_primos(
             }
         )
         imp.write_csv(out_dir / f"impo{suf}.txt", separator="\t")
-        model.save_model(str(out_dir / f"modelo{suf}.txt"))
 
         X_te = feature_matrix(test_df, campos_buenos)
         pred = model.predict(X_te)

@@ -259,3 +259,4 @@ juara/jueves/z290/HT2900/gridsearch*.txt
 **/ht2900viewer/**/*.svelte
 **/ht2900viewer/**/*.css
 **/ht2900viewer/**/*.js
+tmp/

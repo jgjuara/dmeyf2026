@@ -11,6 +11,7 @@ COMPE1_DIR = JUARA_DIR / "compe1"
 COMPE1_EXPERIMENT_IDS = (
     "00",
     "00py",
+    "01py",
     "01_full_fe",
     "02_rank_nocont",
     "02_rank_nocount_py",
@@ -21,6 +22,16 @@ COMPE1_EXPERIMENT_IDS = (
 _LAYERS_BY_ID: dict[str, tuple[str, ...]] = {
     "00": ("competencia_01.parquet",),
     "00py": ("competencia_01.parquet",),
+    "01py": (
+        "competencia_01_nocontinuas.parquet",
+        "competencia_01_nocontinuas_lag1.parquet",
+        "competencia_01_nocontinuas_lag2.parquet",
+        "rankings.parquet",
+        "rankings_lag1.parquet",
+        "rankings_lag2.parquet",
+        "rankings_delta1.parquet",
+        "rankings_delta2.parquet",
+    ),
     "01_full_fe": (
         "competencia_01_nocontinuas.parquet",
         "competencia_01_nocontinuas_lag1.parquet",

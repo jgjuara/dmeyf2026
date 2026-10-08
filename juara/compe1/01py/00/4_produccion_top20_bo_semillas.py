@@ -12,6 +12,7 @@ import _bootstrap  # noqa: F401
 
 from common.cortes import write_cortes_ganancia
 from common.data import feature_matrix, ganancia_envio, preparar_holdout_desde_param
+from common.gcs_upload import sync_resultados_subdir
 from common.layers import resultados_dir
 from common.lgb_train import decode_min_sum_hessian, merge_tuned, train_full
 from common.partition import semillas_primos
@@ -154,6 +155,7 @@ def main() -> None:
     (estudio_dir / "semillas_train.txt").write_text(
         "\n".join(str(s) for s in semillas) + "\n", encoding="utf-8"
     )
+    sync_resultados_subdir(EXPERIMENT_ID, "estudio/top20_bo_semillas")
 
     campos_buenos = list(param["campos_buenos"])
     fold_train = int(param["holdout"]["fold_train"])
@@ -194,7 +196,10 @@ def main() -> None:
         param_rank["semillas_train"] = semillas
         with (out_dir / "PARAM.yml").open("w", encoding="utf-8") as f:
             yaml.safe_dump(param_rank, f, sort_keys=False, allow_unicode=True)
+        sync_resultados_subdir(EXPERIMENT_ID, f"exp{EXPERIMENTO}_top20/{rank_label}")
 
+    sync_resultados_subdir(EXPERIMENT_ID, f"exp{EXPERIMENTO}_top20")
+    sync_resultados_subdir(EXPERIMENT_ID, "estudio/top20_bo_semillas")
     print(f"\nFinalizado top-20 en {rank_base}")
 
 

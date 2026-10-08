@@ -10,6 +10,7 @@ import yaml
 import _bootstrap  # noqa: F401
 
 from common.data import FOTO_MES_MAR_JUN, feature_matrix, read_joined
+from common.gcs_upload import sync_resultados_subdir
 from common.layers import resultados_dir
 from common.lgb_train import decode_min_sum_hessian, merge_tuned, train_full
 from common.partition import semillas_primos
@@ -156,6 +157,7 @@ def main() -> None:
     with (out_dir / "meta.yml").open("w", encoding="utf-8") as f:
         yaml.safe_dump(meta, f, sort_keys=False, allow_unicode=True)
 
+    sync_resultados_subdir(EXPERIMENT_ID, f"exp{EXPERIMENTO}_agosto")
     print(f"\nFinalizado en {out_dir}")
 
 

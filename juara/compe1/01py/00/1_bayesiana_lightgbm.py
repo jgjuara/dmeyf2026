@@ -14,6 +14,7 @@ import _bootstrap  # noqa: F401
 
 from common.bo_space import hyperparametertuning_meta, suggest_params_00
 from common.data import FOTO_MES_MAR_JUN, FOTO_MES_MAR_MAY, preparar_holdout_temporal
+from common.gcs_upload import sync_every_trials, sync_resultados_subdir
 from common.layers import resultados_dir
 from common.lgb_train import fixed_params_00, merge_tuned, temporal_cv_auc_mar_may
 
@@ -69,7 +70,19 @@ def main() -> None:
         print(line, end="", flush=True)
         return auc
 
-    study.optimize(objective, n_trials=n_iter, show_progress_bar=True)
+    every = sync_every_trials()
+
+    def gcs_trial_callback(study: optuna.Study, trial: optuna.trial.FrozenTrial) -> None:
+        if (trial.number + 1) % every != 0:
+            return
+        sync_resultados_subdir(EXPERIMENT_ID, f"HT{EXPERIMENTO}")
+
+    study.optimize(
+        objective,
+        n_trials=n_iter,
+        show_progress_bar=True,
+        callbacks=[gcs_trial_callback],
+    )
 
     log_path = ht_dir / "BO_log.txt"
     rows = []
@@ -136,6 +149,7 @@ def main() -> None:
     with (ht_dir / "PARAM.yml").open("w", encoding="utf-8") as f:
         yaml.safe_dump(param, f, sort_keys=False, allow_unicode=True)
 
+    sync_resultados_subdir(EXPERIMENT_ID, f"HT{EXPERIMENTO}")
     print(f"BO finalizada. Mejor AUC={best['y']:.6f} → {ht_dir}")
 
 

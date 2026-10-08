@@ -10,6 +10,7 @@ import _bootstrap  # noqa: F401
 
 from common.cortes import write_cortes_ganancia
 from common.data import feature_matrix, preparar_holdout_desde_param
+from common.gcs_upload import sync_resultados_subdir
 from common.layers import resultados_dir
 from common.lgb_train import production_params, train_full
 from common.plots import write_gain_curve_pdf
@@ -71,6 +72,7 @@ def main() -> None:
     with (prod_dir / "PARAM.yml").open("w", encoding="utf-8") as f:
         yaml.safe_dump(param, f, sort_keys=False, allow_unicode=True)
 
+    sync_resultados_subdir(EXPERIMENT_ID, f"exp{EXPERIMENTO}")
     print(f"Producción escrita en {prod_dir}")
 
 

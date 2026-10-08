@@ -14,6 +14,7 @@ from scipy.stats import binomtest, friedmanchisquare, wilcoxon
 import _bootstrap  # noqa: F401
 
 from common.cortes import parse_cortes_media, parse_cortes_primo
+from common.gcs_upload import sync_resultados_subdir
 from common.layers import resultados_dir
 
 EXPERIMENT_ID = "01py"
@@ -397,6 +398,7 @@ def main() -> None:
     with (estudio_dir / "PARAM_resumen.yml").open("w", encoding="utf-8") as f:
         yaml.safe_dump(resumen, f, sort_keys=False, allow_unicode=True)
 
+    sync_resultados_subdir(EXPERIMENT_ID, "estudio/top20_bo_semillas")
     print(f"\nAnálisis escrito en {estudio_dir}")
 
 

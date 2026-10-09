@@ -10,7 +10,8 @@ Supuestos:
 - El sufijo de experimento sale de `--exp` o de `meta.yml` (`experiment_id`).
 - Los ranks del modelo salen de `--ranks` o de `meta.yml` (`ranks_bo`).
 - El nombre es `{YYYYMMDDHHMMSS}_{n}env_{rank02}_{exp00}.csv` (hora local, `_`).
-  Varios ranks: `rank02-03`. `experiment_id` `00` → `exp00`; `01py` → `exp01py`.
+  Varios ranks: `rank02-03`. `00py-00` → `exp00py-00`; `testpy-00` → `exptestpy-00`.
+  Legado R: `00` → `exp00`.
   No se incluye el número de experimento (p. ej. `1990` en `experimento`).
 
 Garantiza un CSV de una columna, codificación ASCII, fin de línea LF.
@@ -182,7 +183,7 @@ def resolver_ranks(tsv: Path, ranks_cli: str | None) -> list[int]:
 
 
 def sufijo_exp(tsv: Path, exp: str | None) -> str:
-    """Resuelve `exp00` / `exp01` / `exp01py`.
+    """Resuelve `exp00` / `exp01py-00` (token alfanumérico con guiones).
 
     Raises:
         ValueError: falta `--exp` y `meta.yml` no trae `experiment_id`.
@@ -258,7 +259,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--exp",
         default=None,
-        help="Carpeta de experimento (00, 01, 01py). Se escribe como exp00, exp01, exp01py.",
+        help="experiment_id (00py-00, testpy-00, 01py-00; legado R: 00). Prefijo exp en el CSV.",
     )
     parser.add_argument(
         "--ranks",

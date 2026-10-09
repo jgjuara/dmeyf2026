@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Entrenamiento final LightGBM y evaluación holdout junio (exp1990)."""
+"""Entrenamiento final LightGBM y evaluación holdout junio."""
 
 from __future__ import annotations
 
@@ -7,21 +7,19 @@ import polars as pl
 import yaml
 
 import _bootstrap  # noqa: F401
+from _bootstrap import EXPERIMENT_ID
 
 from common.cortes import write_cortes_ganancia
 from common.data import feature_matrix, preparar_holdout_desde_param
-from common.layers import resultados_dir
+from common.gcs_upload import pull_resultados_subdir, sync_resultados_subdir
+from common.layers import SUBDIR_BO, SUBDIR_PRODUCCION, bo_dir, produccion_dir
 from common.lgb_train import production_params, train_full
 from common.plots import write_gain_curve_pdf
 
-EXPERIMENT_ID = "00py"
-EXPERIMENTO = 1990
-
-
 def main() -> None:
-    res_dir = resultados_dir(EXPERIMENT_ID)
-    ht_dir = res_dir / f"HT{EXPERIMENTO}"
-    prod_dir = res_dir / f"exp{EXPERIMENTO}"
+    ht_dir = bo_dir(EXPERIMENT_ID)
+    pull_resultados_subdir(EXPERIMENT_ID, SUBDIR_BO)
+    prod_dir = produccion_dir(EXPERIMENT_ID)
     prod_dir.mkdir(parents=True, exist_ok=True)
 
     with (ht_dir / "PARAM.yml").open(encoding="utf-8") as f:
@@ -71,6 +69,7 @@ def main() -> None:
     with (prod_dir / "PARAM.yml").open("w", encoding="utf-8") as f:
         yaml.safe_dump(param, f, sort_keys=False, allow_unicode=True)
 
+    sync_resultados_subdir(EXPERIMENT_ID, SUBDIR_PRODUCCION)
     print(f"Producción escrita en {prod_dir}")
 
 

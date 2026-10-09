@@ -1,6 +1,19 @@
 # nueva instance
 
-Para subir resultados del pipeline `compe1/01py` con `COMPE1_GCS_BUCKET`, o los parquets de `juara/fe` con `JUARA_GCS_BUCKET`, la VM necesita scope de **escritura** en GCS (`devstorage.read_write` en lugar de `read_only`) y el service account debe tener permiso de objetos en el bucket (p. ej. `roles/storage.objectAdmin` en `juarajuangabriel_buckito2026`).
+Para `juara/fe` (bucket vía env) o los pipelines Python `compe1/00py`, `compe1/01py` y `compe1/testpy/00` (flag `--vm` + `JUARA_GCS_BUCKET` o `COMPE1_GCS_BUCKET`), la VM necesita scope de **escritura** en GCS (`devstorage.read_write` en lugar de `read_only`) y el service account debe tener permiso de objetos en el bucket (p. ej. `roles/storage.objectAdmin` en `juarajuangabriel_buckito2026`).
+
+## compe1 en VM (`--vm`)
+
+```bash
+export JUARA_GCS_BUCKET=juarajuangabriel_buckito2026
+cd juara
+uv sync
+uv run python compe1/00py/00/1_bayesiana_lightgbm.py --vm
+# o compe1/01py/00/... --vm (exp 1991, capas FE)
+# o compe1/testpy/00/... --vm (mismo protocolo 1990 que 00py; experiment_id testpy-00)
+```
+
+Con `--vm`: entradas desde `gs://<bucket>/data/`; salidas en `gs://<bucket>/compe1/<experiment_id>/resultados/` (p. ej. `compe1/testpy-00/resultados/`). Sin `--vm`, solo rutas locales bajo `juara/data/` y `juara/compe1/`.
 
 ## Feature engineering (`juara/fe`) en VM spot
 
@@ -27,7 +40,8 @@ uv run python fe/build_rankings_v1.py
 uv run python fe/build_rankings_v1_lag1.py
 uv run python fe/build_rankings_v1_lag2.py
 uv run python fe/build_rankings_v1_delta1.py
-uv run python fe/build_rankings_v1_delta2.py
+uv run python fe/build_rankings_v2.py
+uv run python fe/build_rankings_v2_delta2.py
 ```
 
 | Variable | Default | Uso |
@@ -93,12 +107,15 @@ uv run python fe/build_rankings_v1.py
 uv run python fe/build_rankings_v1_lag1.py
 uv run python fe/build_rankings_v1_lag2.py
 uv run python fe/build_rankings_v1_delta1.py
-uv run python fe/build_rankings_v1_delta2.py
+uv run python fe/build_rankings_v2.py
+uv run python fe/build_rankings_v2_delta2.py
 uv run python fe/build_competencia_continuas_v1.py
 uv run python fe/build_competencia_continuas_v1_lag1.py
 uv run python fe/build_competencia_continuas_v1_lag2.py
 uv run python fe/build_competencia_continuas_v1_delta1.py
 uv run python fe/build_competencia_continuas_v1_delta2.py
+uv run python fe/build_competencia_continuas_v2.py
+uv run python fe/build_competencia_continuas_v2_delta2.py
 ```
 
 Sin `JUARA_GCS_BUCKET` / `COMPE1_GCS_BUCKET`, los scripts solo leen y escriben en disco local (`juara/data/` por defecto).

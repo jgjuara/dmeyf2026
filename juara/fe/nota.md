@@ -33,6 +33,12 @@ El token `_vN` va **antes** de sufijos de capa (`_lag1`, `_delta2`, etc.).
 | `build_rankings_v1_lag2.py` | `rankings_v1.parquet` | `rankings_v1_lag2.parquet` |
 | `build_rankings_v1_delta1.py` | `rankings_v1.parquet` | `rankings_v1_delta1.parquet` |
 | `build_rankings_v1_delta2.py` | `rankings_v1.parquet` | `rankings_v1_delta2.parquet` |
+| `build_rankings_v2.py` | clean v1 | `rankings_v2.parquet` |
+| `build_competencia_continuas_v2.py` | clean v1 | `competencia_01_continuas_v2.parquet` |
+| `build_rankings_v2_delta2.py` | `rankings_v2.parquet` | `rankings_v2_delta2.parquet` |
+| `build_competencia_continuas_v2_delta2.py` | continuas v2 | `competencia_01_continuas_v2_delta2.parquet` |
+
+**Semántica delta2:** en v1, `delta2 = t0 − lag2` (histórico). En v2, `delta2 = lag1 − lag2`. `delta1` sigue siendo `t0 − lag1` en ambas versiones.
 
 Lags y deltas de una versión **solo** leen la capa base de la **misma** versión (p. ej. `build_rankings_v2_lag1.py` leería `rankings_v2.parquet`, no `rankings_v1.parquet`).
 

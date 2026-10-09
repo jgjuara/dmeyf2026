@@ -7,7 +7,8 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-from common.layers import layers_paths
+from common.gcs_upload import ensure_data_file
+from common.layers import assert_param_experiment_id, layers_paths
 from common.partition import load_or_export_split
 
 JOIN_KEYS = ("numero_de_cliente", "foto_mes")
@@ -37,6 +38,8 @@ def read_joined(
     foto_mes: tuple[int, ...] | None = None,
 ) -> pl.DataFrame:
     paths = layers_paths(experiment_id)
+    for p in paths:
+        ensure_data_file(p)
     missing = [p for p in paths if not p.exists()]
     if missing:
         raise FileNotFoundError(
@@ -148,6 +151,7 @@ def preparar_holdout_temporal(
 
 
 def preparar_holdout_desde_param(experiment_id: str, param: dict) -> dict:
+    assert_param_experiment_id(param, experiment_id)
     holdout = param["holdout"]
     fold_train = int(holdout["fold_train"])
     fold_test = int(holdout["fold_test"])

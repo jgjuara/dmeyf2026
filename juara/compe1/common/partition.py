@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
+from common.gcs_upload import pull_cache_file, upload_cache_file
 from common.layers import cache_dir
 
 PARTICION_AGRUPA = ("clase_ternaria", "foto_mes")
@@ -114,6 +115,7 @@ def load_or_export_split(
     path = split_cache_path(
         experiment_id, semilla_primigenia, apply_undersampling, undersampling
     )
+    pull_cache_file(experiment_id, path.name, optional=True)
     if not path.exists() or refresh:
         path.parent.mkdir(parents=True, exist_ok=True)
         df = read_joined(experiment_id, foto_mes=foto_mes).select(
@@ -131,6 +133,7 @@ def load_or_export_split(
         out.select("numero_de_cliente", "foto_mes", "fold", "azar", "training").write_csv(
             path, separator="\t"
         )
+        upload_cache_file(experiment_id, path.name)
     return pl.read_csv(
         path,
         separator="\t",

@@ -12,13 +12,12 @@ import yaml
 from scipy.stats import binomtest, friedmanchisquare, wilcoxon
 
 import _bootstrap  # noqa: F401
+from _bootstrap import EXPERIMENT_ID
 
 from common.cortes import parse_cortes_media, parse_cortes_primo
-from common.gcs_upload import sync_resultados_subdir
-from common.layers import resultados_dir
+from common.gcs_upload import pull_resultados_subdir, sync_resultados_subdir
+from common.layers import SUBDIR_TOP20, resultados_dir, top20_dir
 
-EXPERIMENT_ID = "01py"
-EXPERIMENTO = 1991
 N_RANKS = 20
 N_SEMILLAS = 10
 DO_FRIEDMAN = True
@@ -61,8 +60,11 @@ def merge_paired(tb: pl.DataFrame, rank_a: int, rank_b: int, envio: int) -> pl.D
 def main() -> None:
     res_dir = resultados_dir(EXPERIMENT_ID)
     estudio_dir = res_dir / "estudio" / "top20_bo_semillas"
-    rank_base = res_dir / f"exp{EXPERIMENTO}_top20"
+    rank_base = top20_dir(EXPERIMENT_ID)
     estudio_dir.mkdir(parents=True, exist_ok=True)
+
+    pull_resultados_subdir(EXPERIMENT_ID, "estudio/top20_bo_semillas")
+    pull_resultados_subdir(EXPERIMENT_ID, SUBDIR_TOP20)
 
     meta_path = estudio_dir / "top20_hiperparametros.tsv"
     if not meta_path.exists():

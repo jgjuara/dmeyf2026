@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train mar–jun, predict agosto; media rank×semilla (exp1991_agosto, 01py)."""
+"""Train mar–jun, predict agosto; media rank×semilla (01py)."""
 
 from __future__ import annotations
 
@@ -8,15 +8,21 @@ import polars as pl
 import yaml
 
 import _bootstrap  # noqa: F401
+from _bootstrap import EXPERIMENT_ID
 
 from common.data import FOTO_MES_MAR_JUN, feature_matrix, read_joined
-from common.gcs_upload import sync_resultados_subdir
-from common.layers import resultados_dir
+from common.gcs_upload import pull_resultados_subdir, sync_resultados_subdir
+from common.layers import (
+    SUBDIR_AGOSTO,
+    SUBDIR_BO,
+    agosto_dir,
+    assert_param_experiment_id,
+    bo_dir,
+    resultados_dir,
+)
 from common.lgb_train import decode_min_sum_hessian, merge_tuned, train_full
 from common.partition import semillas_primos
 
-EXPERIMENT_ID = "01py"
-EXPERIMENTO = 1991
 N_SEMILLAS_PRIMOS = 10
 RANKS_BO = (3,)
 FOTO_MES_PRED = 202108
@@ -32,13 +38,17 @@ def nombre_tsv_modelo_semilla(rank_id: int, semilla: int, aniomesdia: str) -> st
 
 def main() -> None:
     res_dir = resultados_dir(EXPERIMENT_ID)
-    ht_dir = res_dir / f"HT{EXPERIMENTO}"
+    ht_dir = bo_dir(EXPERIMENT_ID)
     top20_estudio = res_dir / "estudio" / "top20_bo_semillas"
-    out_dir = res_dir / f"exp{EXPERIMENTO}_agosto"
+    out_dir = agosto_dir(EXPERIMENT_ID)
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    pull_resultados_subdir(EXPERIMENT_ID, SUBDIR_BO)
+    pull_resultados_subdir(EXPERIMENT_ID, "estudio/top20_bo_semillas")
 
     with (ht_dir / "PARAM.yml").open(encoding="utf-8") as f:
         param = yaml.safe_load(f)
+    assert_param_experiment_id(param, EXPERIMENT_ID)
 
     campos_buenos = list(param["campos_buenos"])
     hiperparams = (
@@ -142,7 +152,6 @@ def main() -> None:
 
     meta = {
         "experiment_id": EXPERIMENT_ID,
-        "experimento": EXPERIMENTO,
         "ranks_bo": list(ranks_usar),
         "n_semillas_primos": N_SEMILLAS_PRIMOS,
         "semillas_train": semillas,
@@ -157,7 +166,7 @@ def main() -> None:
     with (out_dir / "meta.yml").open("w", encoding="utf-8") as f:
         yaml.safe_dump(meta, f, sort_keys=False, allow_unicode=True)
 
-    sync_resultados_subdir(EXPERIMENT_ID, f"exp{EXPERIMENTO}_agosto")
+    sync_resultados_subdir(EXPERIMENT_ID, SUBDIR_AGOSTO)
     print(f"\nFinalizado en {out_dir}")
 
 

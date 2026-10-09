@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Top-20 HP BO × 10 semillas primo (exp1991_top20, 01py)."""
+"""Top-20 HP BO × 10 semillas primo (01py)."""
 
 from __future__ import annotations
 
@@ -9,17 +9,22 @@ import polars as pl
 import yaml
 
 import _bootstrap  # noqa: F401
+from _bootstrap import EXPERIMENT_ID
 
 from common.cortes import write_cortes_ganancia
 from common.data import feature_matrix, ganancia_envio, preparar_holdout_desde_param
-from common.gcs_upload import sync_resultados_subdir
-from common.layers import resultados_dir
+from common.gcs_upload import pull_resultados_subdir, sync_resultados_subdir
+from common.layers import (
+    SUBDIR_BO,
+    SUBDIR_TOP20,
+    bo_dir,
+    resultados_dir,
+    top20_dir,
+)
 from common.lgb_train import decode_min_sum_hessian, merge_tuned, train_full
 from common.partition import semillas_primos
 from common.plots import write_gain_curve_pdf
 
-EXPERIMENT_ID = "01py"
-EXPERIMENTO = 1991
 N_RANKS = 20
 N_SEMILLAS = 10
 HIPERPARAMS = (
@@ -118,11 +123,13 @@ def _producir_primos(
 
 def main() -> None:
     res_dir = resultados_dir(EXPERIMENT_ID)
-    ht_dir = res_dir / f"HT{EXPERIMENTO}"
+    ht_dir = bo_dir(EXPERIMENT_ID)
     estudio_dir = res_dir / "estudio" / "top20_bo_semillas"
-    rank_base = res_dir / f"exp{EXPERIMENTO}_top20"
+    rank_base = top20_dir(EXPERIMENT_ID)
     estudio_dir.mkdir(parents=True, exist_ok=True)
     rank_base.mkdir(parents=True, exist_ok=True)
+
+    pull_resultados_subdir(EXPERIMENT_ID, SUBDIR_BO)
 
     with (ht_dir / "PARAM.yml").open(encoding="utf-8") as f:
         param = yaml.safe_load(f)
@@ -196,9 +203,9 @@ def main() -> None:
         param_rank["semillas_train"] = semillas
         with (out_dir / "PARAM.yml").open("w", encoding="utf-8") as f:
             yaml.safe_dump(param_rank, f, sort_keys=False, allow_unicode=True)
-        sync_resultados_subdir(EXPERIMENT_ID, f"exp{EXPERIMENTO}_top20/{rank_label}")
+        sync_resultados_subdir(EXPERIMENT_ID, f"{SUBDIR_TOP20}/{rank_label}")
 
-    sync_resultados_subdir(EXPERIMENT_ID, f"exp{EXPERIMENTO}_top20")
+    sync_resultados_subdir(EXPERIMENT_ID, SUBDIR_TOP20)
     sync_resultados_subdir(EXPERIMENT_ID, "estudio/top20_bo_semillas")
     print(f"\nFinalizado top-20 en {rank_base}")
 

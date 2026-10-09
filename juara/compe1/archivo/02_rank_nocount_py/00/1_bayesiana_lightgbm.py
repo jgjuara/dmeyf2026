@@ -13,7 +13,7 @@ import yaml
 
 import _bootstrap  # noqa: F401
 
-from common.bo_space import hyperparametertuning_meta, suggest_params
+from common.bo_space import hyperparametertuning_meta, suggest_from_bo_space
 from common.data import FOTO_MES_MAR_JUN, PARTICION_AGRUPA, feature_matrix, preparar_holdout_split
 from common.layers import resultados_dir
 from common.lgb_train import cv_best_auc, fixed_params, merge_tuned
@@ -21,6 +21,13 @@ from common.lgb_train import cv_best_auc, fixed_params, merge_tuned
 EXPERIMENT_ID = "02_rank_nocount_py"
 EXPERIMENTO = 2102
 SEMILLA_PRIMIGENIA = 427417
+
+BO_SPACE = {
+    "num_iterations": {"type": "int", "low": 2000, "high": 8000},
+    "num_leaves": {"type": "int", "low": 10, "high": 400},
+    "min_data_in_leaf": {"type": "int", "low": 50, "high": 500},
+    "min_sum_hessian_in_leaf": {"type": "float", "low": 0.001, "high": 0.01},
+}
 
 
 def main() -> None:
@@ -63,7 +70,7 @@ def main() -> None:
     )
 
     def objective(trial: optuna.Trial) -> float:
-        hp = suggest_params(trial)
+        hp = suggest_from_bo_space(trial, BO_SPACE)
         params = merge_tuned(fijos, hp)
         auc = cv_best_auc(X, y, params, nfold=2)
         ts = datetime.now().strftime("%H:%M:%S")
@@ -114,7 +121,7 @@ def main() -> None:
         },
         "lgbm": {"param_fijos": fijos},
         "hypeparametertuning": {
-            **hyperparametertuning_meta(),
+            **hyperparametertuning_meta(BO_SPACE),
             "xval_folds": 2,
             "iteraciones": n_iter,
             "objetivo": "cv_auc",

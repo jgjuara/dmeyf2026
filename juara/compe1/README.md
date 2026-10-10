@@ -43,10 +43,10 @@ Desde la raíz del repo (proyecto `uv` en `juara/`):
 7. `uv run python juara/fe/build_rankings_v1_lag1.py` → `rankings_v1_lag1.parquet`
 8. `uv run python juara/fe/build_rankings_v1_lag2.py` → `rankings_v1_lag2.parquet`
 9. `uv run python juara/fe/build_rankings_v1_delta1.py` → `rankings_v1_delta1.parquet`
-10. `uv run python juara/fe/build_rankings_v2.py` → `rankings_v2.parquet`
-11. `uv run python juara/fe/build_rankings_v2_delta2.py` → `rankings_v2_delta2.parquet` (delta2 = lag1 − lag2)
+10. `uv run python juara/fe/build_rankings_v1_delta2_v1.py` → `rankings_v1_delta2_v1.parquet` (t0 − lag2)
+11. `uv run python juara/fe/build_rankings_v1_delta2_v2.py` → `rankings_v1_delta2_v2.parquet` (lag1 − lag2)
 
-Solo hace falta el subconjunto de pasos que exija cada intento (`00py`/`testpy`: paso 1; `01py`: pasos 2–9 y 11; el paso 10 sustituye al antiguo `rankings_v1_delta2`). Los `.parquet` suelen ser locales o gitignored.
+Solo hace falta el subconjunto de pasos que exija cada intento (`00py`/`testpy`: paso 1; `01py`: pasos 2–9 y 11). Los `.parquet` suelen ser locales o gitignored.
 
 Detalle FE: [`juara/fe/nota.md`](../fe/nota.md). VM: [`juara/gce.md`](../gce.md).
 

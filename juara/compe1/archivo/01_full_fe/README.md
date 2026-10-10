@@ -11,7 +11,7 @@
 - `rankings_v1_lag1.parquet`
 - `rankings_v1_lag2.parquet`
 - `rankings_v1_delta1.parquet`
-- `rankings_v1_delta2.parquet`
+- `rankings_v1_delta2_v2.parquet`
 
 **RESULTADOS_DIR:** `juara/compe1/01_full_fe/00/resultados/` (creado por los scripts en `00/`).
 

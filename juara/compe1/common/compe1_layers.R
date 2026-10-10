@@ -21,7 +21,7 @@ COMPE1_EXPERIMENT_IDS <- c(
     "rankings_v1_lag1.parquet",
     "rankings_v1_lag2.parquet",
     "rankings_v1_delta1.parquet",
-    "rankings_v2_delta2.parquet"
+    "rankings_v1_delta2_v2.parquet"
   ),
   "01_full_fe" = c(
     "competencia_01_nocontinuas_v1.parquet",
@@ -31,7 +31,7 @@ COMPE1_EXPERIMENT_IDS <- c(
     "rankings_v1_lag1.parquet",
     "rankings_v1_lag2.parquet",
     "rankings_v1_delta1.parquet",
-    "rankings_v2_delta2.parquet"
+    "rankings_v1_delta2_v2.parquet"
   ),
   "02_rank_nocont" = c(
     "competencia_01_nocontinuas_v1.parquet",

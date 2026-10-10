@@ -13,7 +13,7 @@ Convención intento–iteración: ver [`README.md`](../README.md#intentos-python
 - `rankings_v1_lag1.parquet`
 - `rankings_v1_lag2.parquet`
 - `rankings_v1_delta1.parquet`
-- `rankings_v2_delta2.parquet`
+- `rankings_v1_delta2_v2.parquet`
 
 **Resultados:** `juara/compe1/01py-00/resultados/` (`bo/`, `produccion/`, `top20/`, `agosto/`, `estudio/top20_bo_semillas/`).
 
@@ -32,8 +32,7 @@ uv run python fe/build_rankings_v1.py
 uv run python fe/build_rankings_v1_lag1.py
 uv run python fe/build_rankings_v1_lag2.py
 uv run python fe/build_rankings_v1_delta1.py
-uv run python fe/build_rankings_v2.py
-uv run python fe/build_rankings_v2_delta2.py
+uv run python fe/build_rankings_v1_delta2_v2.py
 ```
 
 ## Comandos pipeline

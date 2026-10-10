@@ -39,7 +39,7 @@ _LAYERS_BY_ID: dict[str, tuple[str, ...]] = {
         "rankings_v1_lag1.parquet",
         "rankings_v1_lag2.parquet",
         "rankings_v1_delta1.parquet",
-        "rankings_v2_delta2.parquet",
+        "rankings_v1_delta2_v2.parquet",
     ),
     "01_full_fe": (
         "competencia_01_nocontinuas_v1.parquet",
@@ -49,7 +49,7 @@ _LAYERS_BY_ID: dict[str, tuple[str, ...]] = {
         "rankings_v1_lag1.parquet",
         "rankings_v1_lag2.parquet",
         "rankings_v1_delta1.parquet",
-        "rankings_v2_delta2.parquet",
+        "rankings_v1_delta2_v2.parquet",
     ),
     "02_rank_nocont": (
         "competencia_01_nocontinuas_v1.parquet",

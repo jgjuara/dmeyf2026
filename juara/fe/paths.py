@@ -42,16 +42,12 @@ def rankings_v1_delta1_parquet() -> Path:
     return DATA_DIR / "rankings_v1_delta1.parquet"
 
 
-def rankings_v1_delta2_parquet() -> Path:
-    return DATA_DIR / "rankings_v1_delta2.parquet"
+def rankings_v1_delta2_v1_parquet() -> Path:
+    return DATA_DIR / "rankings_v1_delta2_v1.parquet"
 
 
-def rankings_v2_parquet() -> Path:
-    return DATA_DIR / "rankings_v2.parquet"
-
-
-def rankings_v2_delta2_parquet() -> Path:
-    return DATA_DIR / "rankings_v2_delta2.parquet"
+def rankings_v1_delta2_v2_parquet() -> Path:
+    return DATA_DIR / "rankings_v1_delta2_v2.parquet"
 
 
 def competencia_nocontinuas_v1_parquet() -> Path:
@@ -82,13 +78,9 @@ def competencia_continuas_v1_delta1_parquet() -> Path:
     return DATA_DIR / "competencia_01_continuas_v1_delta1.parquet"
 
 
-def competencia_continuas_v1_delta2_parquet() -> Path:
-    return DATA_DIR / "competencia_01_continuas_v1_delta2.parquet"
+def competencia_continuas_v1_delta2_v1_parquet() -> Path:
+    return DATA_DIR / "competencia_01_continuas_v1_delta2_v1.parquet"
 
 
-def competencia_continuas_v2_parquet() -> Path:
-    return DATA_DIR / "competencia_01_continuas_v2.parquet"
-
-
-def competencia_continuas_v2_delta2_parquet() -> Path:
-    return DATA_DIR / "competencia_01_continuas_v2_delta2.parquet"
+def competencia_continuas_v1_delta2_v2_parquet() -> Path:
+    return DATA_DIR / "competencia_01_continuas_v1_delta2_v2.parquet"

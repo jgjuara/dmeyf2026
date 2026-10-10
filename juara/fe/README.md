@@ -1,6 +1,6 @@
 # Ingeniería de variables (`juara/fe`)
 
-Scripts DuckDB para materializar artefactos Parquet de la competencia 01 en `juara/data` (o `JUARA_DATA_DIR`). La cadena activa es **v1**; convenciones de versionado y tabla entrada/salida en [`nota.md`](nota.md).
+Scripts DuckDB para materializar artefactos Parquet de la competencia 01 en `juara/data` (o `JUARA_DATA_DIR`). La cadena activa es **v1**; convenciones de versionado y ramificación por paso en [`nota.md`](nota.md).
 
 Ejecución desde `juara/`:
 
@@ -29,7 +29,8 @@ competencia_01_crudo.csv
        ├→ build_competencia_nocontinuas_v1.py → competencia_01_nocontinuas_v1.parquet
        ├→ build_competencia_continuas_v1.py   → competencia_01_continuas_v1.parquet
        └→ build_rankings_v1.py                → rankings_v1.parquet
-            └→ lag/delta sobre cada familia (misma versión v1)
+            ├→ lag1, lag2, delta1 (desde base)
+            └→ delta2_v* (JOIN entre lags; ver abajo)
 ```
 
 Alternativa al primer paso Python: `Rscript juara/generar_clase_ternaria_parquet.R` produce `competencia_01_v1.parquet` con semántica equivalente al builder labeled.
@@ -65,27 +66,28 @@ Alternativa al primer paso Python: `Rscript juara/generar_clase_ternaria_parquet
 
 ## Lags y deltas
 
-Por cliente (`PARTITION BY numero_de_cliente ORDER BY foto_mes`):
+Por cliente (`PARTITION BY numero_de_cliente ORDER BY foto_mes` en builders con `LAG()` desde la base):
 
 - **lag1 / lag2**: valor de la foto anterior (1 o 2 meses).
-- **delta1**: `t0 − lag1` (`col - LAG(col, 1)`).
-- **delta2 v1** (histórico): `t0 − lag2`. **delta2 v2**: `lag1 − lag2` (`LAG(col, 1) - LAG(col, 2)`).
+- **delta1**: `t0 − lag1` (`col - LAG(col, 1)` sobre la base).
 
-Cada derivado lee solo la capa base de la **misma** versión de su familia (no mezcla versiones).
+**delta2** (pasos versionados; ejecutar `lag1` y `lag2` antes):
 
-### Rankings v2 (delta2 corregido)
+| Paso | Fórmula | Entradas (rankings v1) |
+|------|---------|------------------------|
+| `delta2_v1` | t0 − lag2 | `rankings_v1` JOIN `rankings_v1_lag2` |
+| `delta2_v2` | lag1 − lag2 | `rankings_v1_lag1` JOIN `rankings_v1_lag2` |
 
-| Script | Salida |
-|--------|--------|
-| [`build_rankings_v2.py`](build_rankings_v2.py) | `rankings_v2.parquet` (misma lógica que v1) |
-| [`build_rankings_v2_delta2.py`](build_rankings_v2_delta2.py) | `rankings_v2_delta2.parquet` |
+Análogo para continuas (`competencia_01_continuas_v1` + lags). Ver [`nota.md`](nota.md) para ramificación (no es obligatorio re-versionar toda la cadena cuando solo cambia un paso).
 
-### Continuas v2 (delta2 corregido)
+### Orden mínimo (rankings delta2)
 
-| Script | Salida |
-|--------|--------|
-| [`build_competencia_continuas_v2.py`](build_competencia_continuas_v2.py) | `competencia_01_continuas_v2.parquet` |
-| [`build_competencia_continuas_v2_delta2.py`](build_competencia_continuas_v2_delta2.py) | `competencia_01_continuas_v2_delta2.parquet` |
+```powershell
+uv run fe/build_rankings_v1_lag1.py
+uv run fe/build_rankings_v1_lag2.py
+uv run fe/build_rankings_v1_delta2_v1.py
+uv run fe/build_rankings_v1_delta2_v2.py
+```
 
 ### Rankings (`pct_*`)
 
@@ -94,7 +96,8 @@ Cada derivado lee solo la capa base de la **misma** versión de su familia (no m
 | [`build_rankings_v1_lag1.py`](build_rankings_v1_lag1.py) | `rankings_v1_lag1.parquet` (`lag1_pct_*`) |
 | [`build_rankings_v1_lag2.py`](build_rankings_v1_lag2.py) | `rankings_v1_lag2.parquet` |
 | [`build_rankings_v1_delta1.py`](build_rankings_v1_delta1.py) | `rankings_v1_delta1.parquet` (`delta1_pct_*`) |
-| [`build_rankings_v1_delta2.py`](build_rankings_v1_delta2.py) | `rankings_v1_delta2.parquet` |
+| [`build_rankings_v1_delta2_v1.py`](build_rankings_v1_delta2_v1.py) | `rankings_v1_delta2_v1.parquet` |
+| [`build_rankings_v1_delta2_v2.py`](build_rankings_v1_delta2_v2.py) | `rankings_v1_delta2_v2.parquet` |
 
 ### Nocontinuas
 
@@ -110,7 +113,8 @@ Cada derivado lee solo la capa base de la **misma** versión de su familia (no m
 | [`build_competencia_continuas_v1_lag1.py`](build_competencia_continuas_v1_lag1.py) | `competencia_01_continuas_v1_lag1.parquet` |
 | [`build_competencia_continuas_v1_lag2.py`](build_competencia_continuas_v1_lag2.py) | `competencia_01_continuas_v1_lag2.parquet` |
 | [`build_competencia_continuas_v1_delta1.py`](build_competencia_continuas_v1_delta1.py) | `competencia_01_continuas_v1_delta1.parquet` |
-| [`build_competencia_continuas_v1_delta2.py`](build_competencia_continuas_v1_delta2.py) | `competencia_01_continuas_v1_delta2.parquet` |
+| [`build_competencia_continuas_v1_delta2_v1.py`](build_competencia_continuas_v1_delta2_v1.py) | `competencia_01_continuas_v1_delta2_v1.parquet` |
+| [`build_competencia_continuas_v1_delta2_v2.py`](build_competencia_continuas_v1_delta2_v2.py) | `competencia_01_continuas_v1_delta2_v2.parquet` |
 
 ---
 
@@ -122,7 +126,7 @@ Cada derivado lee solo la capa base de la **misma** versión de su familia (no m
 | [`columns.py`](columns.py) | Listado nocontinuas, columnas a rankear y reglas de exclusión en lags. |
 | [`column_buckets.py`](column_buckets.py) | Taxonomía de buckets por nombre de columna (uso en capas de modelado / `layers.py`). |
 | [`gcs_upload.py`](gcs_upload.py) | Subida y descarga opcional de artefactos con `gcloud` cuando `JUARA_GCS_BUCKET` o `COMPE1_GCS_BUCKET` está definido. |
-| [`nota.md`](nota.md) | Política de versionado inmutable de scripts `build_*_vN` y guía para crear v2+. |
+| [`nota.md`](nota.md) | Política de versionado inmutable y ramificación por paso. |
 
 ---
 

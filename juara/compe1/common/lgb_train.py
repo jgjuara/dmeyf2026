@@ -89,11 +89,15 @@ def _lgb_params_for_train(param_completo: dict[str, Any]) -> tuple[dict[str, Any
     return p, nrounds
 
 
-def auc_holdout_lgb(model: lgb.Booster) -> float:
-    evals = model.evals_result_.get("holdout", {}).get("auc")
-    if not evals:
+def auc_holdout_lgb(
+    evals_result: dict[str, Any],
+    valid_name: str = "holdout",
+) -> float:
+    """Máximo AUC en validación (paridad con ``compe1_auc_holdout_lgb`` en R)."""
+    auc_series = evals_result.get(valid_name, {}).get("auc")
+    if not auc_series:
         raise ValueError("El modelo no tiene metricas holdout auc")
-    return float(max(evals))
+    return float(max(auc_series))
 
 
 def temporal_cv_auc_mar_may(
@@ -120,14 +124,16 @@ def temporal_cv_auc_mar_may(
         y_va = va["clase01"].to_numpy()
         dtrain = lgb.Dataset(X_tr, label=y_tr, free_raw_data=False)
         dvalid = lgb.Dataset(X_va, label=y_va, free_raw_data=False)
-        model = lgb.train(
+        evals_result: dict[str, Any] = {}
+        lgb.train(
             param_train,
             dtrain,
             num_boost_round=nrounds,
             valid_sets=[dvalid],
             valid_names=["holdout"],
+            callbacks=[lgb.record_evaluation(evals_result)],
         )
-        aucs.append(auc_holdout_lgb(model))
+        aucs.append(auc_holdout_lgb(evals_result))
     return float(np.mean(aucs))
 
 

@@ -21,7 +21,7 @@ from paths import (  # noqa: E402
     competencia_nocontinuas_v1_lag2_parquet,
     competencia_nocontinuas_v1_parquet,
     rankings_v1_delta1_parquet,
-    rankings_v1_delta2_parquet,
+    rankings_v1_delta2_v1_parquet,
     rankings_v1_lag1_parquet,
     rankings_v1_lag2_parquet,
     rankings_v1_parquet,
@@ -134,7 +134,7 @@ def _dataset_layers() -> list[tuple[str, Path]]:
         ("rankings_lag1", rankings_v1_lag1_parquet()),
         ("rankings_lag2", rankings_v1_lag2_parquet()),
         ("rankings_delta1", rankings_v1_delta1_parquet()),
-        ("rankings_delta2", rankings_v1_delta2_parquet()),
+        ("rankings_delta2", rankings_v1_delta2_v1_parquet()),
     ]
 
 

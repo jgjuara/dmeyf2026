@@ -15,7 +15,7 @@ from _bootstrap import EXPERIMENT_ID
 
 from common.bo_space import hyperparametertuning_meta, suggest_from_bo_space
 from common.data import FOTO_MES_MAR_JUN, FOTO_MES_MAR_MAY, preparar_holdout_temporal
-from common.gcs_upload import pull_resultados_subdir, sync_every_trials, sync_resultados_subdir
+from common.gcs_upload import pull_resultados_subdir, sync_resultados_subdir
 from common.layers import SUBDIR_BO, bo_dir
 from common.lgb_train import fixed_params_00, merge_tuned, temporal_cv_auc_mar_may
 
@@ -33,7 +33,7 @@ def main() -> None:
     pull_resultados_subdir(EXPERIMENT_ID, SUBDIR_BO, optional=True)
     ht_dir.mkdir(parents=True, exist_ok=True)
 
-    n_iter = int(150)
+    n_iter = int(10)
     undersampling = 0.1
     fold_train = 1
     fold_test = 2
@@ -75,10 +75,10 @@ def main() -> None:
         print(line, end="", flush=True)
         return auc
 
-    every = sync_every_trials()
+    gcs_sync_every_trials = 10
 
     def gcs_trial_callback(study: optuna.Study, trial: optuna.trial.FrozenTrial) -> None:
-        if (trial.number + 1) % every != 0:
+        if (trial.number + 1) % gcs_sync_every_trials != 0:
             return
         sync_resultados_subdir(EXPERIMENT_ID, SUBDIR_BO)
 

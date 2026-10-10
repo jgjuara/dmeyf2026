@@ -1,105 +1,114 @@
-# nueva instance
+# VM nueva (spot, labo-image)
 
-Para `juara/fe` (bucket vía env) o los pipelines Python `compe1/00py`, `compe1/01py` y `compe1/testpy/00` (flag `--vm` + `JUARA_GCS_BUCKET` o `COMPE1_GCS_BUCKET`), la VM necesita scope de **escritura** en GCS (`devstorage.read_write` en lugar de `read_only`) y el service account debe tener permiso de objetos en el bucket (p. ej. `roles/storage.objectAdmin` en `juarajuangabriel_buckito2026`).
+Flujo asumido: **crear instancia nueva** con el comando de abajo; no hay pasos de migración ni reparación de VMs existentes.
 
-## compe1 en VM (`--vm`)
+## Requisitos (proyecto GCP)
 
-```bash
-export JUARA_GCS_BUCKET=juarajuangabriel_buckito2026
-cd juara
-uv sync
-uv run python compe1/00py/00/1_bayesiana_lightgbm.py --vm
-# o compe1/01py/00/... --vm (exp 1991, capas FE)
-# o compe1/testpy/00/... --vm (mismo protocolo 1990 que 00py; experiment_id testpy-00)
-```
-
-Con `--vm`: entradas desde `gs://<bucket>/data/`; salidas en `gs://<bucket>/compe1/<experiment_id>/resultados/` (p. ej. `compe1/testpy-00/resultados/`). Sin `--vm`, solo rutas locales bajo `juara/data/` y `juara/compe1/`.
-
-## Feature engineering (`juara/fe`) en VM spot
-
-Destino por defecto: `gs://<bucket>/data/<archivo>` (p. ej. `gs://juarajuangabriel_buckito2026/data/competencia_01_v1.parquet`).
+- Scope OAuth: `devstorage.read_write` (incluido en el `create` de abajo).
+- IAM del service account de compute sobre el bucket (una vez):
 
 ```bash
-export JUARA_GCS_BUCKET=juarajuangabriel_buckito2026
-cd juara
-uv sync
-# repo con juara/docs/vars_nocontinuas.md
-
-uv run python fe/download_competencia_crudo.py
-uv run python fe/build_competencia_01_parquet_v1.py
-uv run python fe/build_competencia_01_clean_v1.py
-uv run python fe/build_competencia_nocontinuas_v1.py
-uv run python fe/build_competencia_nocontinuas_v1_lag1.py
-uv run python fe/build_competencia_nocontinuas_v1_lag2.py
-uv run python fe/build_competencia_continuas_v1.py
-uv run python fe/build_competencia_continuas_v1_lag1.py
-uv run python fe/build_competencia_continuas_v1_lag2.py
-uv run python fe/build_competencia_continuas_v1_delta1.py
-uv run python fe/build_competencia_continuas_v1_delta2.py
-uv run python fe/build_rankings_v1.py
-uv run python fe/build_rankings_v1_lag1.py
-uv run python fe/build_rankings_v1_lag2.py
-uv run python fe/build_rankings_v1_delta1.py
-uv run python fe/build_rankings_v2.py
-uv run python fe/build_rankings_v2_delta2.py
+gcloud storage buckets add-iam-policy-binding gs://juarajuangabriel_buckito2026 --member="serviceAccount:334185517448-compute@developer.gserviceaccount.com" --role="roles/storage.objectAdmin" --project=proj-uba-261006214318442
 ```
 
-| Variable | Default | Uso |
-|----------|---------|-----|
-| `JUARA_GCS_BUCKET` | — | Activa sync GCS en FE |
-| `COMPE1_GCS_BUCKET` | — | Fallback si no hay `JUARA_GCS_BUCKET` |
-| `JUARA_GCS_PREFIX` | `data` | Prefijo bajo el bucket |
-| `JUARA_DATA_DIR` | `juara/data` | Directorio local de datos |
-| `JUARA_DATA_BASE_URL` | URL open-courses | Descarga HTTP del CSV crudo |
-| `JUARA_FORCE_DOWNLOAD` | — | Re-descargar CSV (`1` / `true`) |
+## Crear instancia
 
-Requisitos: `gcloud` en PATH; cada script sube su salida con `gcloud storage cp` si el bucket está definido. Entradas parquet/CSV faltantes se bajan del mismo prefijo `data/` antes de procesar.
+Desde la **raíz de un clon local** del repo (para resolver `juara/gce-startup.sh`).
 
-gcloud beta compute instances create instance-20261008-035912 \
+`gcloud compute instances create` **exige** un nombre de instancia; Compute no asigna uno automáticamente (la consola web sugiere uno, pero hay que fijarlo). Para spot desechable suele bastar un nombre generado (minúsculas, números y guiones; máx. 63 caracteres). El disco de arranque no necesita `device-name` aparte.
+
+```bash
+INSTANCE_NAME="fe-spot-$(date -u +%Y%m%d-%H%M%S)"
+gcloud beta compute instances create "$INSTANCE_NAME" \
     --project=proj-uba-261006214318442 \
-    --zone=us-central1-a \
-    --machine-type=e2-standard-2 \
+    --zone=us-west4-b \
+    --machine-type=e2-highmem-4 \
     --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
-    --metadata=enable-osconfig=TRUE \
     --no-restart-on-failure \
     --maintenance-policy=TERMINATE \
     --provisioning-model=SPOT \
-    --preemption-notice-duration=120s \
-    --instance-termination-action=STOP \
-    --max-run-duration=172800s \
-    --graceful-shutdown \
+    --instance-termination-action=DELETE \
+    --max-run-duration=21600s \
     --service-account=334185517448-compute@developer.gserviceaccount.com \
     --scopes=https://www.googleapis.com/auth/devstorage.read_write,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/trace.append \
-    --tags=https-server \
-    --create-disk=auto-delete=yes,boot=yes,device-name=instance-20261008-035912,image=projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2404-noble-amd64-v20260918,mode=rw,size=50,type=pd-ssd \
+    --tags=http-server,https-server \
+    --create-disk=auto-delete=yes,boot=yes,image=projects/proj-uba-261006214318442/global/images/labo-image,mode=rw,size=70,type=pd-balanced \
     --no-shielded-secure-boot \
     --shielded-vtpm \
     --shielded-integrity-monitoring \
-    --labels=goog-ops-agent-policy=v2-template-1-7-0,goog-ec-src=vm_add-gcloud \
+    --labels=goog-ec-src=vm_add-gcloud \
     --reservation-affinity=none \
-&& \
-printf 'agentsRule:\n  packageState: installed\n  version: latest\ninstanceFilter:\n  inclusionLabels:\n  - labels:\n      goog-ops-agent-policy: v2-template-1-7-0\n' > config.yaml \
-&& \
-gcloud compute instances ops-agents policies create goog-ops-agent-v2-template-1-7-0-us-central1-a \
-    --project=proj-uba-261006214318442 \
-    --zone=us-central1-a \
-    --file=config.yaml
+    --metadata-from-file=startup-script=juara/gce-startup.sh
+echo "Instancia creada: $INSTANCE_NAME"
+```
 
-## Pipeline FE en VM (prep + capas parquet)
+PowerShell (misma raíz del repo). **No** pegar el `create` en una sola línea sin comillas: PowerShell trocea en cada coma y `gcloud` recibe argumentos inválidos (`stack-type=…`, `https-server`, `boot=yes`, etc.). Copiar el bloque completo; los flags con comas van entre **comillas simples** `'…'`.
 
-Requisitos en la VM: `git`, `uv`, `gcloud` con acceso al bucket. Clonar el repo (incluye `juara/docs/vars_nocontinuas.md`).
+```powershell
+$InstanceName = "fe-spot-{0:yyyyMMdd-HHmmss}" -f (Get-Date).ToUniversalTime()
+gcloud beta compute instances create $InstanceName `
+    --project=proj-uba-261006214318442 `
+    --zone=us-west4-b `
+    --machine-type=e2-highmem-4 `
+    '--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default' `
+    --no-restart-on-failure `
+    --maintenance-policy=TERMINATE `
+    --provisioning-model=SPOT `
+    --instance-termination-action=DELETE `
+    --max-run-duration=21600s `
+    --service-account=334185517448-compute@developer.gserviceaccount.com `
+    '--scopes=https://www.googleapis.com/auth/devstorage.read_write,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/trace.append' `
+    '--tags=http-server,https-server' `
+    '--create-disk=auto-delete=yes,boot=yes,image=projects/proj-uba-261006214318442/global/images/labo-image,mode=rw,size=70,type=pd-balanced' `
+    --no-shielded-secure-boot `
+    --shielded-vtpm `
+    --shielded-integrity-monitoring `
+    --labels=goog-ec-src=vm_add-gcloud `
+    --reservation-affinity=none `
+    --metadata-from-file=startup-script=juara/gce-startup.sh
+Write-Host "Instancia creada: $InstanceName"
+```
+
+### Primer arranque (`juara/gce-startup.sh`)
+
+En el **primer** boot (como root): instala `git` y `uv` (`/usr/local/bin/uv`), clona [dmeyf2026](https://github.com/jgjuara/dmeyf2026.git) en `~/dmeyf2026` del usuario de la imagen (p. ej. `juarajuangabriel`). Deja marca en `/var/lib/dmeyf2026-gce-bootstrap.done`; en reinicios posteriores no hace nada.
+
+Log: `journalctl -t gce-startup`. Si solo aparece «instalando uv» y no «bootstrap completado», revisar `/usr/local/uv` (instalación fallida con `UV_INSTALL_DIR=/usr/local` en versiones viejas del script) o repetir el bootstrap borrando la marca y ejecutando el script como root.
+
+Comprobación tras SSH:
 
 ```bash
-export JUARA_GCS_BUCKET=juarajuangabriel_buckito2026
-cd juara
-uv sync
+uv --version
+ls ~/dmeyf2026/juara
+```
 
-# Prep: crudo + competencia_01_v1.parquet (clase_ternaria) + clean v1
+## Trabajo en la VM
+
+```bash
+cd ~/dmeyf2026/juara
+uv sync
+export JUARA_GCS_BUCKET=juarajuangabriel_buckito2026
+```
+
+`gcloud` en la imagen labo; auth vía service account de la VM (scopes + IAM del bucket).
+
+### compe1 (`--vm`)
+
+Entradas: `gs://<bucket>/data/`. Salidas: `gs://<bucket>/compe1/<experiment_id>/resultados/`.
+
+```bash
+uv run python compe1/00py/00/1_bayesiana_lightgbm.py --vm
+# compe1/01py/00/... --vm  |  compe1/testpy/00/... --vm
+```
+
+### Feature engineering (`juara/fe`)
+
+Artefactos en `gs://<bucket>/data/<archivo>` (misma lista plana que `juara/data/`).
+
+```bash
 uv run python fe/download_competencia_crudo.py
 uv run python fe/build_competencia_01_parquet_v1.py
 uv run python fe/build_competencia_01_clean_v1.py
-
-# FE (orden alineado con compe1/README.md)
 uv run python fe/build_competencia_nocontinuas_v1.py
 uv run python fe/build_competencia_nocontinuas_v1_lag1.py
 uv run python fe/build_competencia_nocontinuas_v1_lag2.py
@@ -107,28 +116,44 @@ uv run python fe/build_rankings_v1.py
 uv run python fe/build_rankings_v1_lag1.py
 uv run python fe/build_rankings_v1_lag2.py
 uv run python fe/build_rankings_v1_delta1.py
-uv run python fe/build_rankings_v2.py
-uv run python fe/build_rankings_v2_delta2.py
+uv run python fe/build_rankings_v1_delta2_v1.py
+uv run python fe/build_rankings_v1_delta2_v2.py
 uv run python fe/build_competencia_continuas_v1.py
 uv run python fe/build_competencia_continuas_v1_lag1.py
 uv run python fe/build_competencia_continuas_v1_lag2.py
 uv run python fe/build_competencia_continuas_v1_delta1.py
-uv run python fe/build_competencia_continuas_v1_delta2.py
-uv run python fe/build_competencia_continuas_v2.py
-uv run python fe/build_competencia_continuas_v2_delta2.py
+uv run python fe/build_competencia_continuas_v1_delta2_v1.py
+uv run python fe/build_competencia_continuas_v1_delta2_v2.py
 ```
 
-Sin `JUARA_GCS_BUCKET` / `COMPE1_GCS_BUCKET`, los scripts solo leen y escriben en disco local (`juara/data/` por defecto).
+Cada builder con bucket definido sube con `gcloud storage cp`; si falta un parquet local, lo baja del prefijo `data/` antes de procesar.
 
-### Variables de entorno (datos y GCS)
+## Variables de entorno
 
 | Variable | Default | Uso |
 |----------|---------|-----|
-| `JUARA_GCS_BUCKET` | — | Activa sync GCS (`gcloud storage cp`) |
+| `JUARA_GCS_BUCKET` | — | Activa sync GCS en FE / compe1 `--vm` |
 | `COMPE1_GCS_BUCKET` | — | Fallback si no hay `JUARA_GCS_BUCKET` |
-| `JUARA_GCS_PREFIX` | `data` | Prefijo en el bucket (`gs://<bucket>/<prefix>/<archivo>`) |
-| `JUARA_DATA_DIR` | `juara/data` | Directorio local de parquets y CSV |
-| `JUARA_DATA_BASE_URL` | `https://storage.googleapis.com/open-courses/dmeyf2026-9c6f/` | Base HTTP para `competencia_01_crudo.csv` |
-| `JUARA_FORCE_DOWNLOAD` | — | `1` / `true` fuerza re-descarga del CSV aunque exista local |
+| `JUARA_GCS_PREFIX` | `data` | Prefijo en el bucket |
+| `JUARA_DATA_DIR` | `juara/data` | Datos locales |
+| `JUARA_DATA_BASE_URL` | open-courses GCS | HTTP del CSV crudo |
+| `JUARA_FORCE_DOWNLOAD` | — | `1` / `true` re-descarga el crudo |
 
-Objetos en bucket (misma estructura plana que `juara/data/`): `competencia_01_crudo.csv`, `competencia_01_v1.parquet`, `competencia_01_clean_v1.parquet`, y el resto de salidas `build_*_v1*.py` (`*_v1.parquet`).
+Sin `JUARA_GCS_BUCKET` / `COMPE1_GCS_BUCKET`, solo disco local bajo `JUARA_DATA_DIR`.
+
+## ejemplo acceso ssh
+
+gcloud compute ssh juarajuangabriel@fe-spot-20261009-223316 `
+  --project=proj-uba-261006214318442 `
+  --zone=us-west4-b
+
+## ejemplo cierre y eliminacion 
+
+gcloud compute instances delete fe-spot-20261009-223316 `
+  --project=proj-uba-261006214318442 `
+  --zone=us-west4-b `
+  --quiet
+
+## listar instacnias
+
+gcloud compute instances list --project=proj-uba-261006214318442

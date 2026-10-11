@@ -100,7 +100,7 @@ Entradas: `gs://<bucket>/data/`. Salidas: `gs://<bucket>/compe1/<experiment_id>/
 
 ```bash
 uv run python compe1/00py/00/1_bayesiana_lightgbm.py --vm
-# compe1/01py/00/... --vm  |  compe1/02py/00/... --vm  |  compe1/03py/00/... --vm  |  compe1/testpy/00/... --vm
+# compe1/01py/00/... --vm  |  compe1/02py/00/... --vm  |  compe1/03py/00/... --vm  |  compe1/04py/00/... --vm  |  compe1/testpy/00/... --vm
 ```
 
 ### Feature engineering (`juara/fe`)

@@ -86,12 +86,17 @@ def main() -> None:
             return
         sync_resultados_subdir(EXPERIMENT_ID, SUBDIR_BO)
 
-    study.optimize(
-        objective,
-        n_trials=n_iter,
-        show_progress_bar=True,
-        callbacks=[gcs_trial_callback],
+    completed = sum(
+        1 for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE
     )
+    remaining = max(0, n_iter - completed)
+    if remaining:
+        study.optimize(
+            objective,
+            n_trials=remaining,
+            show_progress_bar=True,
+            callbacks=[gcs_trial_callback],
+        )
 
     log_path = ht_dir / "BO_log.txt"
     rows = []

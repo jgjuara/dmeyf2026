@@ -13,7 +13,13 @@ import yaml
 import _bootstrap  # noqa: F401
 from _bootstrap import EXPERIMENT_ID
 
-from common.bo_space import hyperparametertuning_meta, suggest_from_bo_space
+from common.bo_space import (
+    bo_export_at_last_complete,
+    count_complete_trials,
+    hyperparametertuning_meta,
+    last_complete_trial_number,
+    suggest_from_bo_space,
+)
 from common.data import FOTO_MES_MAR_JUN, FOTO_MES_MAR_MAY, preparar_holdout_temporal
 from common.gcs_upload import pull_resultados_subdir, sync_every_trials, sync_resultados_subdir
 from common.layers import SUBDIR_BO, bo_dir
@@ -82,12 +88,18 @@ def main() -> None:
             return
         sync_resultados_subdir(EXPERIMENT_ID, SUBDIR_BO)
 
-    study.optimize(
-        objective,
-        n_trials=n_iter,
-        show_progress_bar=True,
-        callbacks=[gcs_trial_callback],
-    )
+    export_at_last = bo_export_at_last_complete()
+    if export_at_last:
+        remaining = 0
+    else:
+        remaining = max(0, n_iter - count_complete_trials(study))
+    if remaining:
+        study.optimize(
+            objective,
+            n_trials=remaining,
+            show_progress_bar=True,
+            callbacks=[gcs_trial_callback],
+        )
 
     log_path = ht_dir / "BO_log.txt"
     rows = []
@@ -99,9 +111,20 @@ def main() -> None:
         row["y"] = t.value
         row["iter"] = t.number + 1
         rows.append(row)
+    if not rows:
+        raise RuntimeError("No hay trials COMPLETE en optuna.db; no se puede exportar BO.")
+    n_exported = len(rows)
+    if export_at_last:
+        last_n = last_complete_trial_number(study)
+        print(
+            f"[BO] COMPE1_BO_EXPORT_AT_LAST_COMPLETE: "
+            f"{n_exported} trials COMPLETE (último trial #{last_n}).",
+            flush=True,
+        )
     tb = pl.DataFrame(rows).sort("y", descending=True)
     tb.write_csv(log_path, separator="\t")
 
+    iteraciones_report = n_exported if export_at_last else n_iter
     best = tb.row(0, named=True)
     hp_cols = [c for c in tb.columns if c not in ("y", "iter")]
     mejores = {k: best[k] for k in hp_cols}
@@ -131,14 +154,17 @@ def main() -> None:
         "hypeparametertuning": {
             **hyperparametertuning_meta(BO_SPACE),
             "xval_folds": 2,
-            "iteraciones": n_iter,
+            "iteraciones": iteraciones_report,
+            "iteraciones_planificadas": n_iter,
+            "export_at_last_complete": export_at_last,
+            "ultimo_trial_complete": last_complete_trial_number(study),
             "objetivo": "temporal_cv_auc",
             "optimizer": "optuna",
             "storage": str(ht_dir / "optuna.db"),
         },
         "hyperparametertuning": {
             "xval_folds": 2,
-            "iteraciones": n_iter,
+            "iteraciones": iteraciones_report,
             "objetivo": "temporal_cv_auc",
         },
         "out": {

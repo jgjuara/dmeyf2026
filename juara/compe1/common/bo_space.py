@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Mapping
 from typing import Any
 
@@ -9,6 +10,31 @@ import optuna
 
 BoParamSpec = dict[str, Any]
 BoSpace = Mapping[str, BoParamSpec]
+
+
+def _env_flag(name: str) -> bool:
+    v = os.environ.get(name, "").strip().lower()
+    return v in ("1", "true", "yes")
+
+
+def bo_export_at_last_complete() -> bool:
+    """Sin trials nuevos: exporta artefactos BO con todos los COMPLETE del storage al ejecutar."""
+    if _env_flag("COMPE1_BO_EXPORT_AT_LAST_COMPLETE"):
+        return True
+    return _env_flag("COMPE1_BO_FINALIZE")
+
+
+def count_complete_trials(study: optuna.Study) -> int:
+    return sum(1 for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE)
+
+
+def last_complete_trial_number(study: optuna.Study) -> int | None:
+    nums = [
+        t.number
+        for t in study.trials
+        if t.state == optuna.trial.TrialState.COMPLETE
+    ]
+    return max(nums) if nums else None
 
 
 def suggest_from_bo_space(trial: optuna.Trial, space: BoSpace) -> dict[str, Any]:

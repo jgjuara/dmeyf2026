@@ -71,7 +71,9 @@ Write-Host "Instancia creada: $InstanceName"
 
 ### Primer arranque (`juara/gce-startup.sh`)
 
-En el **primer** boot (como root): instala `git` y `uv` (`/usr/local/bin/uv`), clona [dmeyf2026](https://github.com/jgjuara/dmeyf2026.git) en `~/dmeyf2026` del usuario de la imagen (p. ej. `juarajuangabriel`). Deja marca en `/var/lib/dmeyf2026-gce-bootstrap.done`; en reinicios posteriores no hace nada.
+En el **primer** boot (como root): instala `git` y `uv` (`/usr/local/bin/uv`), clona [dmeyf2026](https://github.com/jgjuara/dmeyf2026.git) en `~/dmeyf2026` del **primer usuario con home** que detecta el script (en `labo-image` suele ser `ubuntu` → `/home/ubuntu/dmeyf2026`, no necesariamente el usuario del `gcloud compute ssh`). Deja marca en `/var/lib/dmeyf2026-gce-bootstrap.done`; en reinicios posteriores no hace nada.
+
+Si entrás por SSH con otro usuario (p. ej. `juarajuangabriel`) y no existe `~/dmeyf2026`, usar el repo del usuario del bootstrap (`ls /home/ubuntu/dmeyf2026/juara`) o clonar ahí con `git clone --depth 1` antes de `uv sync`.
 
 Log: `journalctl -t gce-startup`. Si solo aparece «instalando uv» y no «bootstrap completado», revisar `/usr/local/uv` (instalación fallida con `UV_INSTALL_DIR=/usr/local` en versiones viejas del script) o repetir el bootstrap borrando la marca y ejecutando el script como root.
 
@@ -98,7 +100,7 @@ Entradas: `gs://<bucket>/data/`. Salidas: `gs://<bucket>/compe1/<experiment_id>/
 
 ```bash
 uv run python compe1/00py/00/1_bayesiana_lightgbm.py --vm
-# compe1/01py/00/... --vm  |  compe1/testpy/00/... --vm
+# compe1/01py/00/... --vm  |  compe1/02py/00/... --vm  |  compe1/03py/00/... --vm  |  compe1/testpy/00/... --vm
 ```
 
 ### Feature engineering (`juara/fe`)

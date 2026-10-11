@@ -11,6 +11,7 @@ Rutas de parquets: [`juara/fe/paths.py`](../fe/paths.py). Capas por intento: [`c
 | [`00py`](00py/README.md) | `00py-00` | Baseline: solo `competencia_01_v1.parquet` | 1 | comandos, GCS, paridad |
 | [`01py`](01py/README.md) | `01py-00` | FE completo: lags + rankings + deltas | 8 | prerequisitos FE |
 | [`02py`](02py/README.md) | `02py-00` | Nocontinuas + rankings `pct_*` (sin lags/deltas); protocolo temporal `*py` | 2 | prerequisitos FE |
+| [`03py`](03py/README.md) | `03py-00` | Nocont + rankings + lag1 + delta1; protocolo temporal `*py` (paridad FE con R `03_rank_nocont_lag1_delta1`) | 5 | prerequisitos FE |
 | [`testpy`](testpy/README.md) | `testpy-00` | Mismo protocolo que `00py`; artefactos y GCS aislados | 1 | pruebas locales / VM |
 
 Corridas históricas u otras variantes de alcance FE están en [`archivo/`](archivo/) (documentación propia; ids legados sin guión).
@@ -47,7 +48,7 @@ Desde la raíz del repo (proyecto `uv` en `juara/`):
 10. `uv run python juara/fe/build_rankings_v1_delta2_v1.py` → `rankings_v1_delta2_v1.parquet` (t0 − lag2)
 11. `uv run python juara/fe/build_rankings_v1_delta2_v2.py` → `rankings_v1_delta2_v2.parquet` (lag1 − lag2)
 
-Solo hace falta el subconjunto de pasos que exija cada intento (`00py`/`testpy`: paso 1; `02py`: pasos 3 y 6; `01py`: pasos 2–9 y 11). Los `.parquet` suelen ser locales o gitignored.
+Solo hace falta el subconjunto de pasos que exija cada intento (`00py`/`testpy`: paso 1; `02py`: pasos 3 y 6; `03py`: pasos 3, 4, 6, 7 y 9; `01py`: pasos 2–9 y 11). Los `.parquet` suelen ser locales o gitignored.
 
 Detalle FE: [`juara/fe/nota.md`](../fe/nota.md). VM: [`juara/gce.md`](../gce.md).
 

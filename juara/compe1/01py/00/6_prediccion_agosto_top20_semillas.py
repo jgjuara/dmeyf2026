@@ -10,6 +10,13 @@ import yaml
 import _bootstrap  # noqa: F401
 from _bootstrap import EXPERIMENT_ID
 
+from common.agosto_artifacts import (
+    MODELO_LGB_PATRON,
+    PREDICCION_TSV_PATRON,
+    foto_mes_a_aniomesdia,
+    persist_model_and_upload,
+    persist_pred_tsv_and_upload,
+)
 from common.data import FOTO_MES_MAR_JUN, feature_matrix, read_joined
 from common.gcs_upload import pull_resultados_subdir, sync_resultados_subdir
 from common.layers import (
@@ -26,14 +33,6 @@ from common.partition import semillas_primos
 N_SEMILLAS_PRIMOS = 10
 RANKS_BO = (3,)
 FOTO_MES_PRED = 202108
-
-
-def foto_mes_a_aniomesdia(foto_mes: int) -> str:
-    return f"{foto_mes // 100}{foto_mes % 100:02d}01"
-
-
-def nombre_tsv_modelo_semilla(rank_id: int, semilla: int, aniomesdia: str) -> str:
-    return f"modelo_{rank_id:02d}_{semilla}_{aniomesdia}.tsv"
 
 
 def main() -> None:
@@ -124,6 +123,7 @@ def main() -> None:
             pnorm["seed"] = primo
 
             model = train_full(X_tr, y_tr, pnorm, seed=primo)
+            persist_model_and_upload(model, out_dir, EXPERIMENT_ID, rank_id, primo)
             pred = model.predict(X_ag)
             n_modelos += 1
             prob_sum += pred
@@ -131,9 +131,8 @@ def main() -> None:
             tb_piece = agosto_df.select("numero_de_cliente", "foto_mes").with_columns(
                 pl.Series("prob", pred)
             )
-            tb_piece.write_csv(
-                out_dir / nombre_tsv_modelo_semilla(rank_id, primo, aniomesdia),
-                separator="\t",
+            persist_pred_tsv_and_upload(
+                tb_piece, out_dir, EXPERIMENT_ID, rank_id, primo, aniomesdia
             )
 
     esperado = tb_ranks.height * len(semillas)
@@ -158,7 +157,8 @@ def main() -> None:
         "foto_mes_train": list(FOTO_MES_MAR_JUN),
         "foto_mes_pred": FOTO_MES_PRED,
         "aniomesdia_pred": aniomesdia,
-        "prediccion_tsv_patron": "modelo_%02d_<semilla>_<aniomesdia>.tsv",
+        "modelo_lgb_patron": MODELO_LGB_PATRON,
+        "prediccion_tsv_patron": PREDICCION_TSV_PATRON,
         "n_train": n_train,
         "n_agosto": n_agosto,
         "n_predicciones_agregadas": tb_media.height,

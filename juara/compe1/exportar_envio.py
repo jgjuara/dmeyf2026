@@ -259,7 +259,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--exp",
         default=None,
-        help="experiment_id (00py-00, testpy-00, 01py-00; legado R: 00). Prefijo exp en el CSV.",
+        help="experiment_id (00py-00, testpy-00, 01py-00, 04py-00; legado R: 00). Prefijo exp en el CSV.",
     )
     parser.add_argument(
         "--ranks",

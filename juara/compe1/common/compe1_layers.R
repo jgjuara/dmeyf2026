@@ -4,6 +4,7 @@
 COMPE1_EXPERIMENT_IDS <- c(
   "00",
   "01py",
+  "04py",
   "01_full_fe",
   "02_rank_nocont",
   "02_rank_nocount_py",
@@ -14,6 +15,16 @@ COMPE1_EXPERIMENT_IDS <- c(
 .compe1_layers_by_id <- list(
   "00" = c("competencia_01_v1.parquet"),
   "01py" = c(
+    "competencia_01_nocontinuas_v1.parquet",
+    "competencia_01_nocontinuas_v1_lag1.parquet",
+    "competencia_01_nocontinuas_v1_lag2.parquet",
+    "rankings_v1.parquet",
+    "rankings_v1_lag1.parquet",
+    "rankings_v1_lag2.parquet",
+    "rankings_v1_delta1.parquet",
+    "rankings_v1_delta2_v2.parquet"
+  ),
+  "04py" = c(
     "competencia_01_nocontinuas_v1.parquet",
     "competencia_01_nocontinuas_v1_lag1.parquet",
     "competencia_01_nocontinuas_v1_lag2.parquet",

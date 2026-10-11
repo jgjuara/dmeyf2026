@@ -9,6 +9,9 @@ import polars as pl
 from common.gcs_upload import upload_resultados_file
 from common.layers import SUBDIR_AGOSTO
 
+MODELO_LGB_PATRON = "modelo_%02d_<semilla>.txt"
+PREDICCION_TSV_PATRON = "modelo_%02d_<semilla>_<aniomesdia>.tsv"
+
 
 def foto_mes_a_aniomesdia(foto_mes: int) -> str:
     return f"{foto_mes // 100}{foto_mes % 100:02d}01"

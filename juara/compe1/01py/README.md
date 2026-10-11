@@ -49,6 +49,7 @@ uv run python compe1/01py/00/6_prediccion_agosto_top20_semillas.py
 Variables útiles:
 
 - `COMPE1_BO_ITER` — iteraciones Optuna (default `150`).
+- `COMPE1_BO_EXPORT_AT_LAST_COMPLETE=1` — no corre trials nuevos; exporta `BO_log.txt` y `PARAM.yml` con **todos** los trials COMPLETE presentes en `optuna.db` al ejecutar (corte en el último completado, sin fijar un número a mano).
 
 ## VM spot y GCS (`--vm`)
 

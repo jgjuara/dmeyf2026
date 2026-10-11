@@ -6,8 +6,9 @@ import sys
 
 import duckdb
 
-from gcs_upload import ensure_local_file, upload_parquet
-from paths import DATA_DIR, competencia_crudo_csv, competencia_parquet_labeled_v1
+from download_competencia_crudo import download_competencia_crudo
+from gcs_upload import upload_parquet
+from paths import DATA_DIR, competencia_parquet_labeled_v1
 
 
 def _sql_path(path) -> str:
@@ -15,13 +16,9 @@ def _sql_path(path) -> str:
 
 
 def main() -> None:
-    crudo = competencia_crudo_csv()
+    crudo = download_competencia_crudo()
     dst = competencia_parquet_labeled_v1()
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    ensure_local_file(crudo)
-    if not crudo.is_file():
-        raise SystemExit(f"Archivo inexistente: {crudo}")
 
     crudo_sql = _sql_path(crudo)
     dst_sql = _sql_path(dst)

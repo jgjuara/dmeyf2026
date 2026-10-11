@@ -6,8 +6,8 @@ builders legacy (rankings/continuas v2, delta2 sin sufijo, delta2_v1).
 Desde juara/:
 
     uv run fe/run_fe_v1_latest.py
-    uv run fe/run_fe_v1_latest.py --download
     uv run fe/run_fe_v1_latest.py --from 3
+    uv run fe/run_fe_v1_latest.py --skip-download
 """
 
 from __future__ import annotations
@@ -56,9 +56,9 @@ def _run_script(script: str) -> int:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--download",
+        "--skip-download",
         action="store_true",
-        help="Ejecutar download_competencia_crudo.py antes de los builders.",
+        help="No ejecutar download_competencia_crudo.py antes del paso 1.",
     )
     parser.add_argument(
         "--from",
@@ -74,7 +74,7 @@ def main() -> None:
         raise SystemExit(f"--from debe estar entre 1 y {len(BUILDERS)}")
 
     queue: list[str] = []
-    if args.download:
+    if args.from_step == 1 and not args.skip_download:
         queue.append(DOWNLOAD_SCRIPT)
     queue.extend(BUILDERS[args.from_step - 1 :])
 

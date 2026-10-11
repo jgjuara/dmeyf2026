@@ -28,7 +28,7 @@ def download_competencia_crudo() -> Path:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     if gcs_enabled():
-        ensure_local_file(dest)
+        ensure_local_file(dest, required=False)
 
     if _force_download() and dest.is_file():
         dest.unlink()

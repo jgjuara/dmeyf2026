@@ -38,7 +38,12 @@ def gcs_uri(basename: str) -> str:
     return f"gs://{bucket}/{prefix}/{name}"
 
 
-def ensure_local_file(path: Path) -> None:
+def ensure_local_file(path: Path, *, required: bool = True) -> None:
+    """Baja desde GCS si el archivo local no existe y hay bucket configurado.
+
+    Si ``required`` es False y el objeto no está en GCS, no lanza error (p. ej. crudo
+    vía HTTP en ``download_competencia_crudo``).
+    """
     if not gcs_enabled():
         return
     local = Path(path).resolve()
@@ -47,10 +52,21 @@ def ensure_local_file(path: Path) -> None:
     local.parent.mkdir(parents=True, exist_ok=True)
     uri = gcs_uri(local.name)
     print(f"[gcs] cp {uri} → {local}", flush=True)
-    subprocess.run(
+    result = subprocess.run(
         ["gcloud", "storage", "cp", uri, str(local)],
-        check=True,
+        check=False,
     )
+    if result.returncode == 0:
+        return
+    if local.is_file():
+        return
+    if required:
+        raise subprocess.CalledProcessError(
+            result.returncode,
+            result.args,
+            None,
+            None,
+        )
 
 
 def upload_file(path: Path) -> None:

@@ -193,6 +193,18 @@ def pull_cache_subdir(experiment_id: str, optional: bool = True) -> None:
     pull_local_dir(local, cache_gcs_uri(experiment_id), optional=optional)
 
 
+def upload_resultados_file(experiment_id: str, *parts: str) -> None:
+    if not vm_mode():
+        return
+    _require_vm_bucket()
+    local = resultados_dir(experiment_id).joinpath(*parts)
+    if not local.is_file():
+        raise FileNotFoundError(f"No existe archivo local para subir a GCS: {local}")
+    uri = gcs_uri(experiment_id, *parts)
+    print(f"[gcs] cp {local} → {uri}", flush=True)
+    subprocess.run(["gcloud", "storage", "cp", str(local), uri], check=True)
+
+
 def upload_cache_file(experiment_id: str, filename: str) -> None:
     if not vm_mode():
         return

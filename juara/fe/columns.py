@@ -25,7 +25,7 @@ def columns_competencia_nocontinuas(path: Path) -> list[str]:
 
 
 def columns_to_rank(all_columns: list[str], nocontinuas: frozenset[str]) -> list[str]:
-    skip = nocontinuas | KEY_COLUMNS
+    skip = nocontinuas | LAG_SKIP_COLUMNS
     return [c for c in all_columns if c not in skip]
 
 

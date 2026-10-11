@@ -27,7 +27,7 @@ SEMILLA_PRIMIGENIA = 427417
 
 BO_SPACE = {
     "num_iterations": {"type": "int", "low": 2000, "high": 8000},
-    "num_leaves": {"type": "int", "low": 10, "high": 4000},
+    "num_leaves": {"type": "int", "low": 20, "high": 200},
     "min_sum_hessian_in_leaf": {"type": "float", "low": 0.001, "high": 0.01},
 }
 

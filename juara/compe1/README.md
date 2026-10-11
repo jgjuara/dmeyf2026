@@ -61,7 +61,7 @@ Scripts en `compe1/<intento>/<iter>/`, ejecutados con `uv run python` desde `jua
 | Concepto | Definición (intentos actuales) |
 |----------|--------------------------------|
 | Ventana | `foto_mes` mar–jun 2021 (`202103`–`202106`) |
-| Join | `read_joined` entre capas del intento |
+| Join | `read_joined` entre capas del intento: la **primera** capa aporta `clase_ternaria`; las siguientes no la reincorporan. Columnas derivadas del target (p. ej. `pct_clase_ternaria`, `lag1_clase_ternaria`) se descartan al unir. Tras el join debe quedar una sola `clase_ternaria` ([`common/data.py`](common/data.py)). Si se regeneran parquets FE, re-ejecutar fase 1 (BO) para refrescar `campos_buenos` en `PARAM.yml`. Verificación: `uv run python compe1/common/verify_join_target.py`. |
 | Target binario | `clase01`: `BAJA+1` / `BAJA+2` → 1; `CONTINUA` → 0 |
 | Split | Temporal mar–may (dev) / jun (holdout) vía `preparar_holdout_temporal` en [`common/data.py`](common/data.py) |
 | Holdout | Junio no entra en BO ni en CV de entrenamiento; solo evaluación offline |

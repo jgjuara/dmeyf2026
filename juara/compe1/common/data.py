@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 import polars as pl
 
@@ -12,7 +10,8 @@ from common.layers import assert_param_experiment_id, layers_paths
 from common.partition import load_or_export_split
 
 JOIN_KEYS = ("numero_de_cliente", "foto_mes")
-PARTICION_AGRUPA = ("clase_ternaria", "foto_mes")
+TARGET_COL = "clase_ternaria"
+PARTICION_AGRUPA = (TARGET_COL, "foto_mes")
 FOTO_MES_MAR_MAY = (202103, 202104, 202105)
 FOTO_MES_MAR_JUN = (202103, 202104, 202105, 202106)
 GAN_BAJA2 = 1_072_500
@@ -20,7 +19,7 @@ GAN_OTRO = -27_500
 
 AUXILIARES = {
     *JOIN_KEYS,
-    "clase_ternaria",
+    TARGET_COL,
     "clase01",
     "fold",
     "azar",
@@ -31,6 +30,40 @@ AUXILIARES = {
     "ganancia_acumulada",
     "pos",
 }
+
+
+def is_target_derivative(name: str) -> bool:
+    return name != TARGET_COL and TARGET_COL in name
+
+
+def layer_columns_for_join(
+    columns: list[str] | tuple[str, ...],
+    *,
+    is_first_layer: bool,
+) -> list[str]:
+    """Columnas de una capa a incorporar al join (claves + features, sin derivadas del target)."""
+    selected: list[str] = list(JOIN_KEYS)
+    for col in columns:
+        if col in JOIN_KEYS:
+            continue
+        if is_target_derivative(col):
+            continue
+        if col == TARGET_COL:
+            if is_first_layer:
+                selected.append(col)
+            continue
+        selected.append(col)
+    return selected
+
+
+def assert_target_schema(df: pl.DataFrame) -> None:
+    if TARGET_COL not in df.columns:
+        raise ValueError(f"columna target ausente tras join: {TARGET_COL}")
+    derivatives = [c for c in df.columns if is_target_derivative(c)]
+    if derivatives:
+        raise ValueError(
+            "columnas derivadas del target tras join: " + ", ".join(sorted(derivatives))
+        )
 
 
 def read_joined(
@@ -46,23 +79,29 @@ def read_joined(
             "parquet inexistente: " + ", ".join(str(p) for p in missing)
         )
 
-    df = pl.read_parquet(paths[0])
+    first = pl.read_parquet(paths[0])
+    df = first.select(layer_columns_for_join(first.columns, is_first_layer=True))
     for path in paths[1:]:
         layer = pl.read_parquet(path)
         if not all(k in layer.columns for k in JOIN_KEYS):
             raise ValueError(f"capa sin claves de join: {path}")
-        extra = [c for c in layer.columns if c not in JOIN_KEYS and c != "clase_ternaria"]
-        layer = layer.select([*JOIN_KEYS, *extra])
+        cols = layer_columns_for_join(layer.columns, is_first_layer=False)
+        layer = layer.select(cols)
         df = df.join(layer, on=list(JOIN_KEYS), how="inner")
 
     if foto_mes is not None:
         df = df.filter(pl.col("foto_mes").is_in(list(foto_mes)))
+    assert_target_schema(df)
     return df
 
 
 def feature_columns(df: pl.DataFrame, extra_drop: tuple[str, ...] = ()) -> list[str]:
     drop = AUXILIARES | set(extra_drop)
-    return [c for c in df.columns if c not in drop]
+    return [
+        c
+        for c in df.columns
+        if c not in drop and not is_target_derivative(c)
+    ]
 
 
 def clase01_expr() -> pl.Expr:

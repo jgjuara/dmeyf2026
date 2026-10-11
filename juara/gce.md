@@ -48,8 +48,8 @@ PowerShell (misma raíz del repo). **No** pegar el `create` en una sola línea s
 $InstanceName = "fe-spot-{0:yyyyMMdd-HHmmss}" -f (Get-Date).ToUniversalTime()
 gcloud beta compute instances create $InstanceName `
     --project=proj-uba-261006214318442 `
-    --zone=us-west4-b `
-    --machine-type=e2-highmem-4 `
+    --zone=us-central1-a `
+    --machine-type=e2-highcpu-32 `
     '--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default' `
     --no-restart-on-failure `
     --maintenance-policy=TERMINATE `
@@ -59,7 +59,7 @@ gcloud beta compute instances create $InstanceName `
     --service-account=334185517448-compute@developer.gserviceaccount.com `
     '--scopes=https://www.googleapis.com/auth/devstorage.read_write,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/trace.append' `
     '--tags=http-server,https-server' `
-    '--create-disk=auto-delete=yes,boot=yes,image=projects/proj-uba-261006214318442/global/images/labo-image,mode=rw,size=70,type=pd-balanced' `
+    '--create-disk=auto-delete=yes,boot=yes,image=projects/proj-uba-261006214318442/global/images/labo-image,mode=rw,size=200,type=pd-balanced' `
     --no-shielded-secure-boot `
     --shielded-vtpm `
     --shielded-integrity-monitoring `

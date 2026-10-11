@@ -25,7 +25,7 @@ COMPE1_EXPERIMENT_IDS = (
 
 _ITER_SUFFIX = re.compile(r"^\d{2}$")
 
-_PY_ATTEMPT_IDS = frozenset({"00py", "01py", "testpy"})
+_PY_ATTEMPT_IDS = frozenset({"00py", "01py", "02py", "testpy"})
 
 _LAYERS_BY_ID: dict[str, tuple[str, ...]] = {
     "00": ("competencia_01_v1.parquet",),
@@ -40,6 +40,10 @@ _LAYERS_BY_ID: dict[str, tuple[str, ...]] = {
         "rankings_v1_lag2.parquet",
         "rankings_v1_delta1.parquet",
         "rankings_v1_delta2_v2.parquet",
+    ),
+    "02py": (
+        "competencia_01_nocontinuas_v1.parquet",
+        "rankings_v1.parquet",
     ),
     "01_full_fe": (
         "competencia_01_nocontinuas_v1.parquet",

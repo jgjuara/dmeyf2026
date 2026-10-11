@@ -7,8 +7,11 @@ from typing import Any
 import lightgbm as lgb
 import numpy as np
 import polars as pl
+from sklearn.metrics import average_precision_score
 
 from common.data import FOTO_MES_MAR_MAY, decode_min_sum_hessian, feature_matrix
+
+HOLDOUT_AP_METRIC = "avg_precision"
 
 
 def fixed_params_00(semilla_primigenia: int = 427417) -> dict[str, Any]:
@@ -100,6 +103,28 @@ def auc_holdout_lgb(
     return float(max(auc_series))
 
 
+def _feval_average_precision(
+    preds: np.ndarray,
+    dataset: lgb.Dataset,
+) -> tuple[str, float, bool]:
+    labels = dataset.get_label()
+    if labels is None:
+        raise ValueError("dataset sin labels para average_precision")
+    ap = float(average_precision_score(labels, preds))
+    return HOLDOUT_AP_METRIC, ap, True
+
+
+def ap_holdout_lgb(
+    evals_result: dict[str, Any],
+    valid_name: str = "holdout",
+) -> float:
+    """Máximo PR-AUC (average precision) en validación, análogo a ``auc_holdout_lgb``."""
+    ap_series = evals_result.get(valid_name, {}).get(HOLDOUT_AP_METRIC)
+    if not ap_series:
+        raise ValueError("El modelo no tiene metricas holdout avg_precision")
+    return float(max(ap_series))
+
+
 def temporal_cv_auc_mar_may(
     df: pl.DataFrame,
     campos_buenos: list[str],
@@ -135,6 +160,45 @@ def temporal_cv_auc_mar_may(
         )
         aucs.append(auc_holdout_lgb(evals_result))
     return float(np.mean(aucs))
+
+
+def temporal_cv_average_precision_mar_may(
+    df: pl.DataFrame,
+    campos_buenos: list[str],
+    params: dict[str, Any],
+    meses: tuple[int, ...] = FOTO_MES_MAR_MAY,
+) -> float:
+    """CV temporal mar–may; objetivo = media del max PR-AUC por fold (sklearn AP en holdout)."""
+    if len(meses) != 3:
+        raise ValueError("se esperan 3 meses mar-may")
+    param_train, nrounds = _lgb_params_for_train(dict(params))
+    aps: list[float] = []
+    mes_list = list(meses)
+    for k in (1, 2):
+        mes_tr = mes_list[:k]
+        mes_va = mes_list[k]
+        tr = df.filter(pl.col("foto_mes").is_in(mes_tr))
+        va = df.filter(pl.col("foto_mes") == mes_va)
+        if tr.is_empty() or va.is_empty():
+            raise ValueError("fold temporal sin filas")
+        X_tr = feature_matrix(tr, campos_buenos)
+        y_tr = tr["clase01"].to_numpy()
+        X_va = feature_matrix(va, campos_buenos)
+        y_va = va["clase01"].to_numpy()
+        dtrain = lgb.Dataset(X_tr, label=y_tr, free_raw_data=False)
+        dvalid = lgb.Dataset(X_va, label=y_va, free_raw_data=False)
+        evals_result: dict[str, Any] = {}
+        lgb.train(
+            param_train,
+            dtrain,
+            num_boost_round=nrounds,
+            valid_sets=[dvalid],
+            valid_names=["holdout"],
+            feval=_feval_average_precision,
+            callbacks=[lgb.record_evaluation(evals_result)],
+        )
+        aps.append(ap_holdout_lgb(evals_result))
+    return float(np.mean(aps))
 
 
 def cv_best_auc(

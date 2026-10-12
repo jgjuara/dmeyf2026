@@ -1,5 +1,7 @@
 # 04py
 
+**Entrega final:** reproducción paso a paso (FE, pipeline, media de 3 semillas, CSV de envíos) en [`ENTREGA_FINAL.md`](ENTREGA_FINAL.md).
+
 Port Python del protocolo [`00py`](../00py/README.md) con **FE completo** (8 capas parquet, equivalente a [`01_full_fe`](../archivo/01_full_fe/README.md) y [`01py`](../01py/README.md)): split temporal mar–may / test junio, BO con **Optuna** maximizando PR-AUC temporal. Sin script `3_escalar`.
 
 Convención intento–iteración: ver [`README.md`](../README.md#intentos-python-py). En la iteración `00`, **`experiment_id` = `04py-00`** (definido en [`00/_bootstrap.py`](00/_bootstrap.py)).

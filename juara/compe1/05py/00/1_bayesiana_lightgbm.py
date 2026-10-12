@@ -43,7 +43,7 @@ def main() -> None:
     pull_resultados_subdir(EXPERIMENT_ID, SUBDIR_BO, optional=True)
     ht_dir.mkdir(parents=True, exist_ok=True)
 
-    n_iter = int(os.environ.get("COMPE1_BO_ITER", "150"))
+    n_iter = int(os.environ.get("COMPE1_BO_ITER", "50"))
     undersampling = 1.0
     fold_train = 1
     fold_test = 2

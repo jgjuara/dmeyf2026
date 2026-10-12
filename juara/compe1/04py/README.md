@@ -1,6 +1,6 @@
 # 04py
 
-**Entrega final:** reproducción paso a paso (FE, pipeline, media de 3 semillas, CSV de envíos) en [`ENTREGA_FINAL.md`](ENTREGA_FINAL.md).
+**Entrega final:** BO + `6_` con rank **1** y **3 semillas** (sin `4_`/`5_`); detalle en [`ENTREGA_FINAL.md`](ENTREGA_FINAL.md).
 
 Port Python del protocolo [`00py`](../00py/README.md) con **FE completo** (8 capas parquet, equivalente a [`01_full_fe`](../archivo/01_full_fe/README.md) y [`01py`](../01py/README.md)): split temporal mar–may / test junio, BO con **Optuna** maximizando PR-AUC temporal. Sin script `3_escalar`.
 
@@ -39,6 +39,10 @@ uv run python fe/build_rankings_v1_delta2_v2.py
 
 ## Comandos pipeline
 
+**Entrega (acortada):** ver [`ENTREGA_FINAL.md`](ENTREGA_FINAL.md) — `1_` BO, luego `6_` con `COMPE1_AGOSTO_RANKS=1` y `COMPE1_N_SEMILLAS_PRIMOS=3`.
+
+**Protocolo completo (holdout top-20 + `ganador.yml` + `6_`):**
+
 ```bash
 cd juara
 uv run python compe1/04py/00/1_bayesiana_lightgbm.py
@@ -46,6 +50,12 @@ uv run python compe1/04py/00/2_produccion_lightgbm.py
 uv run python compe1/04py/00/4_produccion_top20_bo_semillas.py
 uv run python compe1/04py/00/5_analisis_top20_bo_semillas.py
 uv run python compe1/04py/00/6_prediccion_agosto_top20_semillas.py
+```
+
+**Sin holdout top-20** (top-N BO directo a agosto, 10 semillas):
+
+```bash
+COMPE1_BO_TOP_N=1 uv run python compe1/04py/00/7_prediccion_agosto_bo_topN_semillas.py
 ```
 
 Variables útiles:

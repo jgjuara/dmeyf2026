@@ -78,6 +78,10 @@ def competencia_continuas_v1_delta1_parquet() -> Path:
     return DATA_DIR / "competencia_01_continuas_v1_delta1.parquet"
 
 
+def competencia_continuas_v1_bin01_v1_parquet() -> Path:
+    return DATA_DIR / "competencia_01_continuas_v1_bin01_v1.parquet"
+
+
 def competencia_continuas_v1_delta2_v1_parquet() -> Path:
     return DATA_DIR / "competencia_01_continuas_v1_delta2_v1.parquet"
 

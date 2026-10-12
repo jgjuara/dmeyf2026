@@ -60,6 +60,7 @@ Alternativa al primer paso Python: `Rscript juara/generar_clase_ternaria_parquet
 |--------|-----|---------|-------------|
 | [`build_competencia_nocontinuas_v1.py`](build_competencia_nocontinuas_v1.py) | clean v1 | `competencia_01_nocontinuas_v1.parquet` | Claves, `clase_ternaria` y columnas listadas en `juara/docs/vars_nocontinuas.md`. |
 | [`build_competencia_continuas_v1.py`](build_competencia_continuas_v1.py) | clean v1 | `competencia_01_continuas_v1.parquet` | Claves y métricas continuas (columnas del parquet que no son nocontinuas ni claves). |
+| [`build_competencia_continuas_v1_bin01_v1.py`](build_competencia_continuas_v1_bin01_v1.py) | continuas v1 | `competencia_01_continuas_v1_bin01_v1.parquet` | Indicadores `bin01_*`: 0 si valor = 0, 1 si distinto, NULL si NULL. |
 | [`build_rankings_v1.py`](build_rankings_v1.py) | clean v1 | `rankings_v1.parquet` | Percentiles por `foto_mes` (`pct_<variable>`) sobre métricas continuas; procesamiento por lotes (`RANKINGS_PCT_BATCH`, límites DuckDB). |
 
 ---
@@ -110,6 +111,7 @@ uv run fe/build_rankings_v1_delta2_v2.py
 
 | Script | Salida |
 |--------|--------|
+| [`build_competencia_continuas_v1_bin01_v1.py`](build_competencia_continuas_v1_bin01_v1.py) | `competencia_01_continuas_v1_bin01_v1.parquet` |
 | [`build_competencia_continuas_v1_lag1.py`](build_competencia_continuas_v1_lag1.py) | `competencia_01_continuas_v1_lag1.parquet` |
 | [`build_competencia_continuas_v1_lag2.py`](build_competencia_continuas_v1_lag2.py) | `competencia_01_continuas_v1_lag2.parquet` |
 | [`build_competencia_continuas_v1_delta1.py`](build_competencia_continuas_v1_delta1.py) | `competencia_01_continuas_v1_delta1.parquet` |

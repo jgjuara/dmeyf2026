@@ -53,6 +53,7 @@ Ventana temporal en lags/delta1 (desde base): `PARTITION BY numero_de_cliente OR
 | `build_competencia_01_clean_v1.py` | `competencia_01_v1.parquet` | `competencia_01_clean_v1.parquet` |
 | `build_competencia_nocontinuas_v1.py` | clean v1 | `competencia_01_nocontinuas_v1.parquet` |
 | `build_competencia_continuas_v1.py` | clean v1 | `competencia_01_continuas_v1.parquet` |
+| `build_competencia_continuas_v1_bin01_v1.py` | continuas v1 | `competencia_01_continuas_v1_bin01_v1.parquet` |
 | `build_rankings_v1.py` | clean v1 | `rankings_v1.parquet` |
 | `build_competencia_nocontinuas_v1_lag1.py` | nocontinuas v1 | `competencia_01_nocontinuas_v1_lag1.parquet` |
 | `build_competencia_nocontinuas_v1_lag2.py` | nocontinuas v1 | `competencia_01_nocontinuas_v1_lag2.parquet` |

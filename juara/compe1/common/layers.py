@@ -25,7 +25,7 @@ COMPE1_EXPERIMENT_IDS = (
 
 _ITER_SUFFIX = re.compile(r"^\d{2}$")
 
-_PY_ATTEMPT_IDS = frozenset({"00py", "01py", "02py", "03py", "04py", "testpy"})
+_PY_ATTEMPT_IDS = frozenset({"00py", "01py", "02py", "03py", "04py", "05py", "06py", "testpy"})
 
 _LAYERS_BY_ID: dict[str, tuple[str, ...]] = {
     "00": ("competencia_01_v1.parquet",),
@@ -56,6 +56,28 @@ _LAYERS_BY_ID: dict[str, tuple[str, ...]] = {
         "competencia_01_nocontinuas_v1.parquet",
         "competencia_01_nocontinuas_v1_lag1.parquet",
         "competencia_01_nocontinuas_v1_lag2.parquet",
+        "rankings_v1.parquet",
+        "rankings_v1_lag1.parquet",
+        "rankings_v1_lag2.parquet",
+        "rankings_v1_delta1.parquet",
+        "rankings_v1_delta2_v2.parquet",
+    ),
+    "05py": (
+        "competencia_01_nocontinuas_v1.parquet",
+        "competencia_01_nocontinuas_v1_lag1.parquet",
+        "competencia_01_nocontinuas_v1_lag2.parquet",
+        "competencia_01_continuas_v1_bin01_v1.parquet",
+        "rankings_v1.parquet",
+        "rankings_v1_lag1.parquet",
+        "rankings_v1_lag2.parquet",
+        "rankings_v1_delta1.parquet",
+        "rankings_v1_delta2_v2.parquet",
+    ),
+    "06py": (
+        "competencia_01_nocontinuas_v1.parquet",
+        "competencia_01_nocontinuas_v1_lag1.parquet",
+        "competencia_01_nocontinuas_v1_lag2.parquet",
+        "competencia_01_continuas_v1_bin01_v1.parquet",
         "rankings_v1.parquet",
         "rankings_v1_lag1.parquet",
         "rankings_v1_lag2.parquet",

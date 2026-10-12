@@ -19,7 +19,7 @@ HIPERPARAMS = HP_COLS
 OUTPUT_COLS = ("rank", "y", "iter", *HP_COLS)
 
 
-_STUDY_SUFFIX_AP = frozenset({"02py", "03py", "04py"})
+_STUDY_SUFFIX_AP = frozenset({"02py", "03py", "04py", "05py"})
 
 
 def study_name_for_experiment(experiment_id: str) -> str:

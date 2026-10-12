@@ -19,8 +19,14 @@ HIPERPARAMS = HP_COLS
 OUTPUT_COLS = ("rank", "y", "iter", *HP_COLS)
 
 
+_STUDY_SUFFIX_AP = frozenset({"02py", "03py", "04py"})
+
+
 def study_name_for_experiment(experiment_id: str) -> str:
-    return f"{experiment_id.replace('-', '_')}_temporal_cv_auc"
+    """Debe coincidir con ``study_name`` en ``1_bayesiana_lightgbm.py`` del intento."""
+    attempt = experiment_id.split("-", 1)[0]
+    suffix = "temporal_cv_ap" if attempt in _STUDY_SUFFIX_AP else "temporal_cv_auc"
+    return f"{experiment_id.replace('-', '_')}_{suffix}"
 
 
 def resolve_bo_fuente(ht_dir: Path) -> str:

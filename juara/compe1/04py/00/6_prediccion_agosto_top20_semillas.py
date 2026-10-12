@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import polars as pl
 import yaml
@@ -19,6 +21,8 @@ from common.agosto_artifacts import (
 )
 from common.data import FOTO_MES_MAR_JUN, feature_matrix, read_joined
 from common.gcs_upload import pull_resultados_subdir, sync_resultados_subdir
+from pathlib import Path
+
 from common.layers import (
     SUBDIR_AGOSTO,
     SUBDIR_BO,
@@ -30,9 +34,22 @@ from common.layers import (
 from common.lgb_train import decode_min_sum_hessian, merge_tuned, train_full
 from common.partition import semillas_primos
 
-N_SEMILLAS_PRIMOS = 10
-RANKS_BO = (3,)
+N_SEMILLAS_PRIMOS_DEFAULT = 10
+RANKS_BO_DEFAULT = (3,)
 FOTO_MES_PRED = 202108
+
+
+def _ranks_desde_env_o_ganador(ganador_path: Path) -> list[int]:
+    raw = os.environ.get("COMPE1_AGOSTO_RANKS", "").strip()
+    if raw:
+        return [int(x.strip()) for x in raw.split(",") if x.strip()]
+    if ganador_path.exists():
+        with ganador_path.open(encoding="utf-8") as f:
+            ganador = yaml.safe_load(f) or {}
+        rank_ganador = ganador.get("rank_ganador")
+        if rank_ganador is not None:
+            return [int(rank_ganador)]
+    return list(RANKS_BO_DEFAULT)
 
 
 def main() -> None:
@@ -72,21 +89,15 @@ def main() -> None:
         raise ValueError(f"tabla top-20 sin columnas: {faltantes}")
 
     ganador_path = top20_estudio / "ganador.yml"
-    if ganador_path.exists():
-        with ganador_path.open(encoding="utf-8") as f:
-            ganador = yaml.safe_load(f) or {}
-        rank_ganador = ganador.get("rank_ganador")
-        if rank_ganador is not None:
-            ranks_usar = [int(rank_ganador)]
-        else:
-            ranks_usar = list(RANKS_BO)
-    else:
-        ranks_usar = list(RANKS_BO)
+    ranks_usar = _ranks_desde_env_o_ganador(ganador_path)
     tb_ranks = tb_top20.filter(pl.col("rank").is_in(ranks_usar))
     if tb_ranks.height != len(ranks_usar):
-        raise ValueError(f"RANKS_BO fuera de rango: {ranks_usar}")
+        raise ValueError(f"Ranks BO fuera de rango: {ranks_usar}")
 
-    semillas = semillas_primos(N_SEMILLAS_PRIMOS, int(param["semilla_primigenia"]))
+    n_semillas = int(
+        os.environ.get("COMPE1_N_SEMILLAS_PRIMOS", N_SEMILLAS_PRIMOS_DEFAULT)
+    )
+    semillas = semillas_primos(n_semillas, int(param["semilla_primigenia"]))
     print("RANKS_BO:", ", ".join(str(r) for r in ranks_usar))
     print("semillas_train:", ", ".join(str(s) for s in semillas))
 
@@ -162,7 +173,7 @@ def main() -> None:
     meta = {
         "experiment_id": EXPERIMENT_ID,
         "ranks_bo": list(ranks_usar),
-        "n_semillas_primos": N_SEMILLAS_PRIMOS,
+        "n_semillas_primos": n_semillas,
         "semillas_train": semillas,
         "foto_mes_train": list(FOTO_MES_MAR_JUN),
         "foto_mes_pred": FOTO_MES_PRED,

@@ -16,7 +16,7 @@ Convención intento–iteración: ver [`README.md`](../README.md#intentos-python
 - `rankings_v1_delta1.parquet`
 - `rankings_v1_delta2_v2.parquet`
 
-**Resultados:** `juara/compe1/05py-00/resultados/` (`bo/`, `produccion/`, `top20/`, `agosto/`, `estudio/top20_bo_semillas/`).
+**Resultados:** `juara/compe1/05py-00/resultados/` (`bo/`, `produccion/`, `top20/`, `agosto/`, `julio_pseudo/`, `agosto_mar_jul/`, `estudio/top20_bo_semillas/`).
 
 **Utilidades:** [`common/layers.py`](../common/layers.py), [`common/data.py`](../common/data.py), [`common/lgb_train.py`](../common/lgb_train.py), [`common/bo_space.py`](../common/bo_space.py), [`common/gcs_upload.py`](../common/gcs_upload.py).
 
@@ -47,10 +47,15 @@ uv run python compe1/05py/00/2_produccion_lightgbm.py
 uv run python compe1/05py/00/4_produccion_top20_bo_semillas.py
 uv run python compe1/05py/00/5_analisis_top20_bo_semillas.py
 uv run python compe1/05py/00/6_prediccion_agosto_top20_semillas.py
+uv run python compe1/05py/00/8_julio_imputacion_top20_semillas.py
+uv run python compe1/05py/00/9_prediccion_agosto_mar_jul_top20_semillas.py
 ```
+
+Los scripts `8_` y `9_` requieren haber ejecutado los pasos `1`–`5` (BO, producción y estudio top-20). El `8_` genera la imputación en `julio_pseudo/`; el `9_` la consume para entrenar mar–jul y predecir agosto en `agosto_mar_jul/`.
 
 Variables útiles:
 
+- `COMPE1_JULIO_PSEUDO_PREVALENCIA` — solo `mar_jun_mean` (default) para imputar `clase01` en julio.
 - `COMPE1_BO_ITER` — iteraciones Optuna (default `150`).
 - `COMPE1_BO_EXPORT_AT_LAST_COMPLETE=1` — no corre trials nuevos; exporta `BO_log.txt` y `PARAM.yml` con **todos** los trials COMPLETE presentes en `optuna.db` al ejecutar (corte en el último completado, sin fijar un número a mano).
 
@@ -85,5 +90,6 @@ Requisitos en la VM: `gcloud` en PATH; scope de almacenamiento con escritura e I
 | BO | No bit-a-bit (Optuna ≠ mlrMBO) |
 | `3_escalar` | No incluido |
 | Agosto (`6_`) | Usa `rank_ganador` de `ganador.yml` (paso `5_`); fallback rank `3` |
+| Pseudo-julio (`8_`/`9_`) | Misma selección rank×semilla que `6_`; train mar–jul con `clase01` imputado en julio |
 
 Checkpoint BO: `05py-00/resultados/bo/optuna.db`.

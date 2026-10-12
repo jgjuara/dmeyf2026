@@ -183,6 +183,8 @@ SUBDIR_BO = "bo"
 SUBDIR_PRODUCCION = "produccion"
 SUBDIR_TOP20 = "top20"
 SUBDIR_AGOSTO = "agosto"
+SUBDIR_JULIO_PSEUDO = "julio_pseudo"
+SUBDIR_AGOSTO_MAR_JUL = "agosto_mar_jul"
 
 
 def resultados_dir(experiment_id: str) -> Path:
@@ -213,6 +215,14 @@ def top20_dir(experiment_id: str) -> Path:
 
 def agosto_dir(experiment_id: str) -> Path:
     return resultados_dir(experiment_id) / SUBDIR_AGOSTO
+
+
+def julio_pseudo_dir(experiment_id: str) -> Path:
+    return resultados_dir(experiment_id) / SUBDIR_JULIO_PSEUDO
+
+
+def agosto_mar_jul_dir(experiment_id: str) -> Path:
+    return resultados_dir(experiment_id) / SUBDIR_AGOSTO_MAR_JUL
 
 
 def layers_paths(experiment_id: str) -> list[Path]:

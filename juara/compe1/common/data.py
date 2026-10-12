@@ -14,6 +14,9 @@ TARGET_COL = "clase_ternaria"
 PARTICION_AGRUPA = (TARGET_COL, "foto_mes")
 FOTO_MES_MAR_MAY = (202103, 202104, 202105)
 FOTO_MES_MAR_JUN = (202103, 202104, 202105, 202106)
+FOTO_MES_JUL = 202107
+FOTO_MES_MAR_JUL = FOTO_MES_MAR_JUN + (FOTO_MES_JUL,)
+BAJA_TERNARIA = frozenset({"BAJA+1", "BAJA+2"})
 GAN_BAJA2 = 1_072_500
 GAN_OTRO = -27_500
 
@@ -106,11 +109,16 @@ def feature_columns(df: pl.DataFrame, extra_drop: tuple[str, ...] = ()) -> list[
 
 def clase01_expr() -> pl.Expr:
     return (
-        pl.when(pl.col("clase_ternaria").is_in(["BAJA+1", "BAJA+2"]))
+        pl.when(pl.col("clase_ternaria").is_in(list(BAJA_TERNARIA)))
         .then(1)
         .otherwise(0)
         .alias("clase01")
     )
+
+
+def with_clase01_observada(df: pl.DataFrame) -> pl.DataFrame:
+    """Añade clase01 binaria desde clase_ternaria observada (no pseudo-etiquetas)."""
+    return df.with_columns(clase01_expr())
 
 
 def decode_min_sum_hessian(param: dict, limits: tuple[float, float] = (0.001, 0.01)) -> dict:

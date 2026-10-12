@@ -31,10 +31,12 @@ def persist_model_and_upload(
     experiment_id: str,
     rank_id: int,
     semilla: int,
+    *,
+    subdir: str = SUBDIR_AGOSTO,
 ) -> None:
     name = nombre_modelo_lgb(rank_id, semilla)
     model.save_model(str(out_dir / name))
-    upload_resultados_file(experiment_id, SUBDIR_AGOSTO, name)
+    upload_resultados_file(experiment_id, subdir, name)
 
 
 def persist_pred_tsv_and_upload(
@@ -44,7 +46,9 @@ def persist_pred_tsv_and_upload(
     rank_id: int,
     semilla: int,
     aniomesdia: str,
+    *,
+    subdir: str = SUBDIR_AGOSTO,
 ) -> None:
     name = nombre_tsv_modelo_semilla(rank_id, semilla, aniomesdia)
     tb_piece.write_csv(out_dir / name, separator="\t")
-    upload_resultados_file(experiment_id, SUBDIR_AGOSTO, name)
+    upload_resultados_file(experiment_id, subdir, name)
